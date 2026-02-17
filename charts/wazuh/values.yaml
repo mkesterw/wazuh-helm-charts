@@ -189,3 +189,47 @@ wazuhDashboard:
     enabled: false
 
 # ... resto do arquivo permanece igual
+# ... (todo o conteúdo anterior permanece)
+
+# Configurações de Secrets
+secrets:
+  indexer:
+    username: "admin"
+    password: "SecurePassword123!"
+  dashboard:
+    username: "kibanaserver"
+    password: "kibanaserver"
+  wazuhApi:
+    username: "wazuh-wui"
+    password: "MyS3cr37P450r.*-"
+  authdPass: "please_change_me"
+  tls:
+    autoGenerate: true
+    existingSecret: ""
+    caCert: ""
+    serverCert: ""
+    serverKey: ""
+    dashboardCert: ""
+    dashboardKey: ""
+
+# Network Policies
+networkPolicies:
+  enabled: false
+
+# RBAC configuration
+rbac:
+  create: true
+
+# Service Account ← ADICIONE/CORRIJA ESTA SEÇÃO COMPLETA
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+# Pod Security Policy
+podSecurityPolicy:
+  enabled: false

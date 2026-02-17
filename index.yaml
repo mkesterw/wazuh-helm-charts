@@ -1,0 +1,28 @@
+apiVersion: v1
+entries:
+  wazuh:
+  - apiVersion: v2
+    appVersion: 5.0.0
+    created: "2026-02-17T19:41:17.868303339Z"
+    description: Helm chart para implantação completa do Wazuh no Kubernetes
+    digest: ad89ad4c3453a575351ecfc6e8ffefc5ea1e3cd62aa32ae1c052c2443aa3621b
+    home: https://wazuh.com
+    icon: https://wazuh.com/uploads/2022/05/Logo-blogpost.png
+    keywords:
+    - wazuh
+    - security
+    - monitoring
+    - siem
+    - xdr
+    maintainers:
+    - email: seu-email@example.com
+      name: Seu Nome
+    name: wazuh
+    sources:
+    - https://github.com/wazuh/wazuh-kubernetes
+    - https://github.com/wazuh/wazuh
+    type: application
+    urls:
+    - https://mkesterw.github.io/wazuh-helm-charts/wazuh-1.0.0.tgz
+    version: 1.0.0
+generated: "2026-02-17T19:41:17.867070577Z"

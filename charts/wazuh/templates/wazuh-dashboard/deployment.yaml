@@ -23,12 +23,15 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       serviceAccountName: {{ include "wazuh.serviceAccountName" . }}
-      {{- if eq .Values.wazuhDashboard.env.serverSslEnabled "true" }}
       volumes:
+        - name: dashboard-config
+          configMap:
+            name: {{ include "wazuh.fullname" . }}-dashboard-config
+        {{- if eq .Values.wazuhDashboard.env.serverSslEnabled "true" }}
         - name: dashboard-certs
           secret:
             secretName: {{ include "wazuh.fullname" . }}-dashboard-certs
-      {{- end }}
+        {{- end }}
       containers:
         - name: wazuh-dashboard
           image: "{{ .Values.wazuhDashboard.image.repository }}:{{ .Values.wazuhDashboard.image.tag }}"
@@ -66,16 +69,6 @@ spec:
                 secretKeyRef:
                   name: {{ include "wazuh.fullname" . }}-dashboard-cred
                   key: password
-            - name: SERVER_SSL_ENABLED
-              value: {{ .Values.wazuhDashboard.env.serverSslEnabled | quote }}
-            {{- if eq .Values.wazuhDashboard.env.serverSslEnabled "true" }}
-            - name: SERVER_SSL_CERTIFICATE
-              value: /etc/wazuh-dashboard/certs/dashboard.pem
-            - name: SERVER_SSL_KEY
-              value: /etc/wazuh-dashboard/certs/dashboard-key.pem
-            - name: OPENSEARCH_SSL_CERTIFICATE_AUTHORITIES
-              value: /etc/wazuh-dashboard/certs/root-ca.pem
-            {{- end }}
             - name: WAZUH_API_URL
               value: {{ .Values.wazuhDashboard.env.wazuhApiUrl | quote }}
             - name: API_USERNAME
@@ -88,8 +81,12 @@ spec:
                 secretKeyRef:
                   name: {{ include "wazuh.fullname" . }}-wazuh-api-cred
                   key: password
-          {{- if eq .Values.wazuhDashboard.env.serverSslEnabled "true" }}
           volumeMounts:
+            - name: dashboard-config
+              mountPath: /usr/share/wazuh-dashboard/config/opensearch_dashboards.yml
+              subPath: opensearch_dashboards.yml
+              readOnly: true
+            {{- if eq .Values.wazuhDashboard.env.serverSslEnabled "true" }}
             - name: dashboard-certs
               mountPath: /etc/wazuh-dashboard/certs/dashboard.pem
               readOnly: true
@@ -102,7 +99,7 @@ spec:
               mountPath: /etc/wazuh-dashboard/certs/root-ca.pem
               subPath: root-ca.pem
               readOnly: true
-          {{- end }}
+            {{- end }}
           livenessProbe:
             httpGet:
               path: /app/login

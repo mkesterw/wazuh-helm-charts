@@ -1,12 +1,33 @@
 # Valores padrão para o Wazuh Helm Chart
 
-# Configurações globais
+## Configurações globais
 global:
   namespace: wazuh
   storageClass: ""
   imageRegistry: docker.io
   imagePullPolicy: IfNotPresent
   imagePullSecrets: []
+
+## Cert-Manager Configuration
+## Se você não tem cert-manager instalado, instale com:
+## kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.14.4/cert-manager.yaml
+cert-manager:
+  enabled: false  # Set to true if you want to deploy cert-manager with this chart
+  installCRDs: true
+
+## Certificates Configuration
+## Gera certificados TLS automaticamente usando cert-manager
+certificates:
+  enabled: true
+  duration: 2160h # 90 dias
+  renewBefore: 360h # 15 dias
+  issuer:
+    name: wazuh-selfsigned-issuer
+    kind: Issuer
+  subject:
+    organization: Wazuh
+    country: US
+    locality: California
 
 # Configurações do Wazuh Manager
 wazuhManager:
@@ -16,7 +37,7 @@ wazuhManager:
     
     image:
       repository: wazuh/wazuh-manager
-      tag: "4.9.1"  # ← MUDOU de 5.0.0 para 4.9.1
+      tag: "4.9.1"
       pullPolicy: IfNotPresent
     
     resources:
@@ -44,12 +65,12 @@ wazuhManager:
     affinity: {}
   
   worker:
-    enabled: true
-    replicaCount: 1
+    enabled: false  # Desabilitado por padrão para ambientes pequenos
+    replicaCount: 2
     
     image:
       repository: wazuh/wazuh-manager
-      tag: "4.9.1"  # ← MUDOU de 5.0.0 para 4.9.1
+      tag: "4.9.1"
       pullPolicy: IfNotPresent
     
     resources:
@@ -97,11 +118,11 @@ wazuhManager:
 # Configurações do Wazuh Indexer
 wazuhIndexer:
   enabled: true
-  replicaCount: 1
+  replicaCount: 1  # Para produção, use 3
   
   image:
     repository: wazuh/wazuh-indexer
-    tag: "4.9.1"  # ← MUDOU de 5.0.0 para 4.9.1
+    tag: "4.9.1"
     pullPolicy: IfNotPresent
   
   resources:
@@ -120,9 +141,6 @@ wazuhIndexer:
       - ReadWriteOnce
   
   javaOpts: "-Xms1g -Xmx1g -Dlog4j2.formatMsgNoLookups=true"
-
-  security:
-    enabled: false  # ← DESABILITAR Security Plugin
   
   cluster:
     initialClusterManagerNodes: "wazuh-indexer-0"
@@ -166,7 +184,7 @@ wazuhDashboard:
   
   service:
     type: NodePort
-    port: 5601  # ← Porta HTTP
+    port: 443
     annotations: {}
   
   ingress:
@@ -181,9 +199,9 @@ wazuhDashboard:
     tls: []
   
   env:
-    opensearchHosts: "http://wazuh-indexer:9200"  # ← HTTP sem HTTPS
-    serverSslEnabled: "false"  # ← Desabilitar SSL
-    wazuhApiUrl: "http://wazuh-api:55000"  # ← HTTP sem HTTPS
+    opensearchHosts: "https://wazuh-indexer:9200"
+    serverSslEnabled: "true"
+    wazuhApiUrl: "https://wazuh-api:55000"
   
   nodeSelector: {}
   tolerations: []
@@ -191,29 +209,21 @@ wazuhDashboard:
   networkPolicy:
     enabled: false
 
-# ... resto do arquivo permanece igual
-# ... (todo o conteúdo anterior permanece)
-
 # Configurações de Secrets
 secrets:
   indexer:
     username: "admin"
     password: "SecurePassword123!"
+  
   dashboard:
     username: "kibanaserver"
     password: "kibanaserver"
+  
   wazuhApi:
     username: "wazuh-wui"
     password: "MyS3cr37P450r.*-"
+  
   authdPass: "please_change_me"
-  tls:
-    autoGenerate: true
-    existingSecret: ""
-    caCert: ""
-    serverCert: ""
-    serverKey: ""
-    dashboardCert: ""
-    dashboardKey: ""
 
 # Network Policies
 networkPolicies:
@@ -223,17 +233,12 @@ networkPolicies:
 rbac:
   create: true
 
-# Service Account ← ADICIONE/CORRIJA ESTA SEÇÃO COMPLETA
+# Service Account
 serviceAccount:
-  # Specifies whether a service account should be created
   create: true
-  # Annotations to add to the service account
   annotations: {}
-  # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
   name: ""
 
 # Pod Security Policy
 podSecurityPolicy:
   enabled: false
-

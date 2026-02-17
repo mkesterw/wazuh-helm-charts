@@ -51,9 +51,18 @@ spec:
           securityContext:
             privileged: {{ .Values.wazuhIndexer.securityContext.privileged }}
       volumes:
-        - name: indexer-config  # ← ADICIONAR
-          configMap:  # ← ADICIONAR
-            name: {{ include "wazuh.fullname" . }}-indexer-config  # ← ADICIONAR
+        - name: indexer-config
+          configMap:
+            name: {{ include "wazuh.fullname" . }}-indexer-config
+        - name: indexer-certs
+          secret:
+            secretName: {{ include "wazuh.fullname" . }}-indexer-node-certs
+        - name: admin-certs
+          secret:
+            secretName: {{ include "wazuh.fullname" . }}-indexer-admin-certs
+        - name: ca-cert
+          secret:
+            secretName: {{ include "wazuh.fullname" . }}-ca-secret
       containers:
         - name: wazuh-indexer
           image: "{{ .Values.wazuhIndexer.image.repository }}:{{ .Values.wazuhIndexer.image.tag }}"
@@ -103,10 +112,30 @@ spec:
                   name: {{ include "wazuh.fullname" . }}-indexer-cred
                   key: password
           volumeMounts:
-            - name: indexer-config  # ← ADICIONAR
-              mountPath: /usr/share/wazuh-indexer/config/opensearch.yml  # ← ADICIONAR
-              subPath: opensearch.yml  # ← ADICIONAR
-              readOnly: true  # ← ADICIONAR
+            - name: indexer-config
+              mountPath: /usr/share/wazuh-indexer/config/opensearch.yml
+              subPath: opensearch.yml
+              readOnly: true
+            - name: indexer-certs
+              mountPath: /usr/share/wazuh-indexer/certs/node.pem
+              subPath: tls.crt
+              readOnly: true
+            - name: indexer-certs
+              mountPath: /usr/share/wazuh-indexer/certs/node-key.pem
+              subPath: tls.key
+              readOnly: true
+            - name: admin-certs
+              mountPath: /usr/share/wazuh-indexer/certs/admin.pem
+              subPath: tls.crt
+              readOnly: true
+            - name: admin-certs
+              mountPath: /usr/share/wazuh-indexer/certs/admin-key.pem
+              subPath: tls.key
+              readOnly: true
+            - name: ca-cert
+              mountPath: /usr/share/wazuh-indexer/certs/root-ca.pem
+              subPath: ca.crt
+              readOnly: true
             - name: {{ include "wazuh.fullname" . }}-indexer
               mountPath: /var/lib/wazuh-indexer
           livenessProbe:

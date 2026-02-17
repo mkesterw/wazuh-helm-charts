@@ -1,0 +1,45 @@
+{{- if .Values.wazuhDashboard.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "wazuh.fullname" . }}-dashboard-config
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "wazuh.labels" . | nindent 4 }}
+    app: wazuh-dashboard
+data:
+  opensearch_dashboards.yml: |
+    server.host: "0.0.0.0"
+    server.port: 5601
+    
+    {{- if eq .Values.wazuhDashboard.env.serverSslEnabled "true" }}
+    server.ssl.enabled: true
+    server.ssl.certificate: /usr/share/wazuh-dashboard/certs/dashboard.pem
+    server.ssl.key: /usr/share/wazuh-dashboard/certs/dashboard-key.pem
+    {{- else }}
+    server.ssl.enabled: false
+    {{- end }}
+    
+    opensearch.hosts: ["{{ .Values.wazuhDashboard.env.opensearchHosts }}"]
+    opensearch.ssl.verificationMode: certificate
+    opensearch.ssl.certificateAuthorities: ["/usr/share/wazuh-dashboard/certs/root-ca.pem"]
+    opensearch.username: "${DASHBOARD_USERNAME}"
+    opensearch.password: "${DASHBOARD_PASSWORD}"
+    opensearch.requestHeadersWhitelist: ["securitytenant","Authorization"]
+    
+    opensearch_security.multitenancy.enabled: false
+    opensearch_security.readonly_mode.roles: ["kibana_read_only"]
+    opensearch_security.cookie.secure: false
+    
+    server.defaultRoute: /app/wz-home
+    uiSettings.overrides.defaultRoute: /app/wz-home
+    
+    # Wazuh API configuration
+    wazuh.api.url: {{ .Values.wazuhDashboard.env.wazuhApiUrl | quote }}
+    
+    # Logging
+    logging.dest: stdout
+    logging.silent: false
+    logging.quiet: false
+    logging.verbose: false
+{{- end }}

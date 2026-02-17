@@ -1,0 +1,42 @@
+{{- if and .Values.certificates.enabled .Values.wazuhDashboard.enabled }}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ include "wazuh.fullname" . }}-dashboard
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "wazuh.labels" . | nindent 4 }}
+spec:
+  secretName: {{ include "wazuh.fullname" . }}-dashboard-certs
+  duration: {{ .Values.certificates.duration }}
+  renewBefore: {{ .Values.certificates.renewBefore }}
+  subject:
+    organizations:
+      - {{ .Values.certificates.subject.organization }}
+    countries:
+      - {{ .Values.certificates.subject.country }}
+    localities:
+      - {{ .Values.certificates.subject.locality }}
+  commonName: "{{ include "wazuh.fullname" . }}-dashboard"
+  dnsNames:
+    - "{{ include "wazuh.fullname" . }}-dashboard"
+    - "{{ include "wazuh.fullname" . }}-dashboard.{{ .Values.global.namespace }}"
+    - "{{ include "wazuh.fullname" . }}-dashboard.{{ .Values.global.namespace }}.svc"
+    - "{{ include "wazuh.fullname" . }}-dashboard.{{ .Values.global.namespace }}.svc.cluster.local"
+    - "wazuh-dashboard"
+    - "wazuh-dashboard.{{ .Values.global.namespace }}"
+    - "wazuh-dashboard.{{ .Values.global.namespace }}.svc"
+    - "wazuh-dashboard.{{ .Values.global.namespace }}.svc.cluster.local"
+  privateKey:
+    algorithm: RSA
+    size: 2048
+  usages:
+    - digital signature
+    - key encipherment
+    - server auth
+  issuerRef:
+    name: {{ include "wazuh.fullname" . }}-ca-issuer
+    kind: Issuer
+    group: cert-manager.io
+{{- end }}

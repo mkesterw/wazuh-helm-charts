@@ -27,10 +27,15 @@ spec:
         - name: dashboard-config
           configMap:
             name: {{ include "wazuh.fullname" . }}-dashboard-config
-        {{- if eq .Values.wazuhDashboard.env.serverSslEnabled "true" }}
+        {{- if .Values.certificates.enabled }}
         - name: dashboard-certs
           secret:
             secretName: {{ include "wazuh.fullname" . }}-dashboard-certs
+            defaultMode: 0644
+        - name: ca-cert
+          secret:
+            secretName: {{ include "wazuh.fullname" . }}-ca-secret
+            defaultMode: 0644
         {{- end }}
       containers:
         - name: wazuh-dashboard
@@ -40,25 +45,17 @@ spec:
             {{- toYaml .Values.wazuhDashboard.resources | nindent 12 }}
           ports:
             {{- if eq .Values.wazuhDashboard.env.serverSslEnabled "true" }}
-            - containerPort: 443
+            - containerPort: 5601
               name: dashboard
+              protocol: TCP
             {{- else }}
             - containerPort: 5601
               name: dashboard
+              protocol: TCP
             {{- end }}
           env:
-            - name: OPENSEARCH_HOSTS
+            - name: INDEXER_URL
               value: {{ .Values.wazuhDashboard.env.opensearchHosts | quote }}
-            - name: INDEXER_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "wazuh.fullname" . }}-indexer-cred
-                  key: username
-            - name: INDEXER_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "wazuh.fullname" . }}-indexer-cred
-                  key: password
             - name: DASHBOARD_USERNAME
               valueFrom:
                 secretKeyRef:
@@ -69,8 +66,6 @@ spec:
                 secretKeyRef:
                   name: {{ include "wazuh.fullname" . }}-dashboard-cred
                   key: password
-            - name: WAZUH_API_URL
-              value: {{ .Values.wazuhDashboard.env.wazuhApiUrl | quote }}
             - name: API_USERNAME
               valueFrom:
                 secretKeyRef:
@@ -86,28 +81,29 @@ spec:
               mountPath: /usr/share/wazuh-dashboard/config/opensearch_dashboards.yml
               subPath: opensearch_dashboards.yml
               readOnly: true
+            {{- if .Values.certificates.enabled }}
             {{- if eq .Values.wazuhDashboard.env.serverSslEnabled "true" }}
             - name: dashboard-certs
-              mountPath: /etc/wazuh-dashboard/certs/dashboard.pem
+              mountPath: /usr/share/wazuh-dashboard/certs/dashboard.pem
+              subPath: tls.crt
               readOnly: true
-              subPath: dashboard.pem
             - name: dashboard-certs
-              mountPath: /etc/wazuh-dashboard/certs/dashboard-key.pem
+              mountPath: /usr/share/wazuh-dashboard/certs/dashboard-key.pem
+              subPath: tls.key
               readOnly: true
-              subPath: dashboard-key.pem
-            - name: dashboard-certs
-              mountPath: /etc/wazuh-dashboard/certs/root-ca.pem
-              subPath: root-ca.pem
+            {{- end }}
+            - name: ca-cert
+              mountPath: /usr/share/wazuh-dashboard/certs/root-ca.pem
+              subPath: ca.crt
               readOnly: true
             {{- end }}
           livenessProbe:
             httpGet:
               path: /app/login
+              port: 5601
               {{- if eq .Values.wazuhDashboard.env.serverSslEnabled "true" }}
-              port: 443
               scheme: HTTPS
               {{- else }}
-              port: 5601
               scheme: HTTP
               {{- end }}
             initialDelaySeconds: 120
@@ -117,11 +113,10 @@ spec:
           readinessProbe:
             httpGet:
               path: /app/login
+              port: 5601
               {{- if eq .Values.wazuhDashboard.env.serverSslEnabled "true" }}
-              port: 443
               scheme: HTTPS
               {{- else }}
-              port: 5601
               scheme: HTTP
               {{- end }}
             initialDelaySeconds: 60

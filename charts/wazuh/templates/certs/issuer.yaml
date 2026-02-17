@@ -1,0 +1,56 @@
+{{- if .Values.certificates.enabled }}
+---
+# Self-signed Issuer para criar o CA
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: {{ include "wazuh.fullname" . }}-selfsigned-issuer
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "wazuh.labels" . | nindent 4 }}
+spec:
+  selfSigned: {}
+
+---
+# Certificado CA raiz
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ include "wazuh.fullname" . }}-ca
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "wazuh.labels" . | nindent 4 }}
+spec:
+  isCA: true
+  commonName: {{ include "wazuh.fullname" . }}-ca
+  secretName: {{ include "wazuh.fullname" . }}-ca-secret
+  duration: {{ .Values.certificates.duration }}
+  renewBefore: {{ .Values.certificates.renewBefore }}
+  subject:
+    organizations:
+      - {{ .Values.certificates.subject.organization }}
+    countries:
+      - {{ .Values.certificates.subject.country }}
+    localities:
+      - {{ .Values.certificates.subject.locality }}
+  privateKey:
+    algorithm: RSA
+    size: 2048
+  issuerRef:
+    name: {{ include "wazuh.fullname" . }}-selfsigned-issuer
+    kind: Issuer
+    group: cert-manager.io
+
+---
+# Issuer baseado no CA criado
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: {{ include "wazuh.fullname" . }}-ca-issuer
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "wazuh.labels" . | nindent 4 }}
+spec:
+  ca:
+    secretName: {{ include "wazuh.fullname" . }}-ca-secret
+{{- end }}

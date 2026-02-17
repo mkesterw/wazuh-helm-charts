@@ -1,20 +1,32 @@
+# charts/wazuh/Chart.yaml
 apiVersion: v2
 name: wazuh
 description: Helm chart para implantação completa do Wazuh no Kubernetes
 type: application
-version: 1.0.0
-appVersion: "4.9.1"  # ← MUDOU de 5.0.0 para 4.9.1
+version: 1.0.1  # ← Incrementar versão
+appVersion: "4.9.1"
+
 keywords:
   - wazuh
   - security
   - monitoring
   - siem
   - xdr
+
 home: https://wazuh.com
 sources:
   - https://github.com/wazuh/wazuh-kubernetes
   - https://github.com/wazuh/wazuh
+
 maintainers:
   - name: Seu Nome
     email: seu-email@example.com
+
 icon: https://wazuh.com/uploads/2022/05/Logo-blogpost.png
+
+# ← ADICIONAR DEPENDÊNCIA
+dependencies:
+  - name: cert-manager
+    version: "v1.14.4"
+    repository: https://charts.jetstack.io
+    condition: cert-manager.enabled

@@ -1,0 +1,83 @@
+{{- if and .Values.certificates.enabled .Values.wazuhIndexer.enabled }}
+---
+# Certificado do Node (para comunicação do cluster)
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ include "wazuh.fullname" . }}-indexer-node
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "wazuh.labels" . | nindent 4 }}
+spec:
+  secretName: {{ include "wazuh.fullname" . }}-indexer-node-certs
+  duration: {{ .Values.certificates.duration }}
+  renewBefore: {{ .Values.certificates.renewBefore }}
+  subject:
+    organizations:
+      - {{ .Values.certificates.subject.organization }}
+    countries:
+      - {{ .Values.certificates.subject.country }}
+    localities:
+      - {{ .Values.certificates.subject.locality }}
+  commonName: "{{ include "wazuh.fullname" . }}-indexer"
+  dnsNames:
+    - "{{ include "wazuh.fullname" . }}-indexer"
+    - "{{ include "wazuh.fullname" . }}-indexer.{{ .Values.global.namespace }}"
+    - "{{ include "wazuh.fullname" . }}-indexer.{{ .Values.global.namespace }}.svc"
+    - "{{ include "wazuh.fullname" . }}-indexer.{{ .Values.global.namespace }}.svc.cluster.local"
+    - "*.{{ include "wazuh.fullname" . }}-indexer.{{ .Values.global.namespace }}.svc.cluster.local"
+    - "wazuh-indexer"
+    - "wazuh-indexer.{{ .Values.global.namespace }}"
+    - "wazuh-indexer.{{ .Values.global.namespace }}.svc"
+    - "wazuh-indexer.{{ .Values.global.namespace }}.svc.cluster.local"
+    - "wazuh-indexer-0"
+    - "wazuh-indexer-1"
+    - "wazuh-indexer-2"
+  ipAddresses:
+    - "127.0.0.1"
+  privateKey:
+    algorithm: RSA
+    size: 2048
+  usages:
+    - digital signature
+    - key encipherment
+    - server auth
+    - client auth
+  issuerRef:
+    name: {{ include "wazuh.fullname" . }}-ca-issuer
+    kind: Issuer
+    group: cert-manager.io
+
+---
+# Certificado Admin (para administração do cluster)
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ include "wazuh.fullname" . }}-indexer-admin
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "wazuh.labels" . | nindent 4 }}
+spec:
+  secretName: {{ include "wazuh.fullname" . }}-indexer-admin-certs
+  duration: {{ .Values.certificates.duration }}
+  renewBefore: {{ .Values.certificates.renewBefore }}
+  subject:
+    organizations:
+      - {{ .Values.certificates.subject.organization }}
+    countries:
+      - {{ .Values.certificates.subject.country }}
+    localities:
+      - {{ .Values.certificates.subject.locality }}
+  commonName: "admin"
+  privateKey:
+    algorithm: RSA
+    size: 2048
+  usages:
+    - digital signature
+    - key encipherment
+    - client auth
+  issuerRef:
+    name: {{ include "wazuh.fullname" . }}-ca-issuer
+    kind: Issuer
+    group: cert-manager.io
+{{- end }}

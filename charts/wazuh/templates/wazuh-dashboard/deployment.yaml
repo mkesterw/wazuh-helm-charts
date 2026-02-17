@@ -62,11 +62,11 @@ spec:
             - name: SERVER_SSL_ENABLED
               value: {{ .Values.wazuhDashboard.env.serverSslEnabled | quote }}
             - name: SERVER_SSL_CERTIFICATE
-              value: /usr/share/wazuh-dashboard/config/certs/dashboard.pem
+              value: /etc/wazuh-dashboard/certs/dashboard.pem  # ← MUDOU O PATH
             - name: SERVER_SSL_KEY
-              value: /usr/share/wazuh-dashboard/config/certs/dashboard-key.pem
+              value: /etc/wazuh-dashboard/certs/dashboard-key.pem  # ← MUDOU O PATH
             - name: OPENSEARCH_SSL_CERTIFICATE_AUTHORITIES
-              value: /usr/share/wazuh-dashboard/config/certs/root-ca.pem
+              value: /etc/wazuh-dashboard/certs/root-ca.pem  # ← MUDOU O PATH
             - name: WAZUH_API_URL
               value: {{ .Values.wazuhDashboard.env.wazuhApiUrl | quote }}
             - name: API_USERNAME
@@ -81,15 +81,15 @@ spec:
                   key: password
           volumeMounts:
             - name: dashboard-certs
-              mountPath: /usr/share/wazuh-dashboard/config/certs/dashboard.pem
+              mountPath: /etc/wazuh-dashboard/certs/dashboard.pem  # ← MUDOU O PATH
               readOnly: true
               subPath: dashboard.pem
             - name: dashboard-certs
-              mountPath: /usr/share/wazuh-dashboard/config/certs/dashboard-key.pem
+              mountPath: /etc/wazuh-dashboard/certs/dashboard-key.pem  # ← MUDOU O PATH
               readOnly: true
               subPath: dashboard-key.pem
             - name: dashboard-certs
-              mountPath: /usr/share/wazuh-dashboard/config/certs/root-ca.pem
+              mountPath: /etc/wazuh-dashboard/certs/root-ca.pem  # ← MUDOU O PATH
               subPath: root-ca.pem
               readOnly: true
           livenessProbe:
@@ -100,14 +100,16 @@ spec:
             initialDelaySeconds: 120
             periodSeconds: 30
             timeoutSeconds: 10
+            failureThreshold: 5  # ← AUMENTEI PARA 5
           readinessProbe:
             httpGet:
               path: /app/login
               port: 443
               scheme: HTTPS
-            initialDelaySeconds: 30
+            initialDelaySeconds: 60  # ← AUMENTEI PARA 60
             periodSeconds: 10
             timeoutSeconds: 5
+            failureThreshold: 3
       {{- with .Values.wazuhDashboard.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

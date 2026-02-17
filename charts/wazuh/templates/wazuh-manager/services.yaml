@@ -1,0 +1,90 @@
+---
+# API Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "wazuh.fullname" . }}-api
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "wazuh.labels" . | nindent 4 }}
+    app: wazuh-manager
+  {{- with .Values.wazuhManager.service.api.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.wazuhManager.service.api.type }}
+  selector:
+    app: wazuh-manager
+    node-type: master
+  ports:
+    - name: api
+      port: {{ .Values.wazuhManager.service.api.port }}
+      targetPort: 55000
+---
+# Registration Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "wazuh.fullname" . }}-registration
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "wazuh.labels" . | nindent 4 }}
+    app: wazuh-manager
+  {{- with .Values.wazuhManager.service.registration.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.wazuhManager.service.registration.type }}
+  selector:
+    app: wazuh-manager
+    node-type: master
+  ports:
+    - name: registration
+      port: {{ .Values.wazuhManager.service.registration.port }}
+      targetPort: 1515
+---
+# Events Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "wazuh.fullname" . }}-events
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "wazuh.labels" . | nindent 4 }}
+    app: wazuh-manager
+  {{- with .Values.wazuhManager.service.events.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.wazuhManager.service.events.type }}
+  selector:
+    app: wazuh-manager
+    node-type: worker
+  ports:
+    - name: agents-events
+      port: {{ .Values.wazuhManager.service.events.port }}
+      targetPort: 1514
+---
+# Cluster Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "wazuh.fullname" . }}-cluster
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "wazuh.labels" . | nindent 4 }}
+    app: wazuh-manager
+spec:
+  type: {{ .Values.wazuhManager.service.cluster.type }}
+  selector:
+    app: wazuh-manager
+  ports:
+    - name: cluster
+      port: {{ .Values.wazuhManager.service.cluster.port }}
+      targetPort: 1516
+  {{- if .Values.wazuhManager.service.cluster.clusterIP }}
+  clusterIP: {{ .Values.wazuhManager.service.cluster.clusterIP }}
+  {{- end }}

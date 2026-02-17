@@ -1,0 +1,25 @@
+{{- if .Values.wazuhDashboard.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "wazuh.fullname" . }}-dashboard
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "wazuh.labels" . | nindent 4 }}
+    app: wazuh-dashboard
+  {{- with .Values.wazuhDashboard.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.wazuhDashboard.service.type }}
+  selector:
+    app: wazuh-dashboard
+  ports:
+    - name: dashboard
+      port: {{ .Values.wazuhDashboard.service.port }}
+      targetPort: 443
+      {{- if and (eq .Values.wazuhDashboard.service.type "NodePort") .Values.wazuhDashboard.service.nodePort }}
+      nodePort: {{ .Values.wazuhDashboard.service.nodePort }}
+      {{- end }}
+{{- end }}

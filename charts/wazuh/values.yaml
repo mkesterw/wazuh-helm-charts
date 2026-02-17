@@ -1,0 +1,294 @@
+# Valores padrão para o Wazuh Helm Chart
+
+# Configurações globais
+global:
+  # Namespace onde os recursos serão criados
+  namespace: wazuh
+  
+  # StorageClass para PersistentVolumeClaims
+  storageClass: ""
+  
+  # Imagens
+  imageRegistry: docker.io
+  imagePullPolicy: IfNotPresent
+  imagePullSecrets: []
+
+# Configurações do Wazuh Manager
+wazuhManager:
+  # Configurações do Master
+  master:
+    enabled: true
+    replicaCount: 1
+    
+    image:
+      repository: wazuh/wazuh-manager
+      tag: "5.0.0"
+      pullPolicy: IfNotPresent
+    
+    resources:
+      limits:
+        cpu: 400m
+        memory: 512Mi
+      requests:
+        cpu: 200m
+        memory: 256Mi
+    
+    # Configurações de armazenamento
+    persistence:
+      enabled: true
+      size: 10Gi
+      storageClass: ""
+      accessModes:
+        - ReadWriteOnce
+    
+    # Security Context
+    securityContext:
+      fsGroup: 101
+      capabilities:
+        add: ["SYS_CHROOT"]
+    
+    # Node Selector
+    nodeSelector: {}
+    
+    # Tolerations
+    tolerations: []
+    
+    # Affinity
+    affinity: {}
+  
+  # Configurações dos Workers
+  worker:
+    enabled: true
+    replicaCount: 2
+    
+    image:
+      repository: wazuh/wazuh-manager
+      tag: "5.0.0"
+      pullPolicy: IfNotPresent
+    
+    resources:
+      limits:
+        cpu: 400m
+        memory: 512Mi
+      requests:
+        cpu: 200m
+        memory: 256Mi
+    
+    # Configurações de armazenamento
+    persistence:
+      enabled: true
+      size: 10Gi
+      storageClass: ""
+      accessModes:
+        - ReadWriteOnce
+    
+    # Security Context
+    securityContext:
+      fsGroup: 101
+      capabilities:
+        add: ["SYS_CHROOT"]
+    
+    # Anti-affinity para distribuir workers em diferentes nodes
+    antiAffinity: soft
+    
+    # Node Selector
+    nodeSelector: {}
+    
+    # Tolerations
+    tolerations: []
+  
+  # Configurações de serviços
+  service:
+    # API Service
+    api:
+      type: ClusterIP
+      port: 55000
+      annotations: {}
+    
+    # Registration Service
+    registration:
+      type: ClusterIP
+      port: 1515
+      annotations: {}
+    
+    # Events Service (agent reporting)
+    events:
+      type: ClusterIP
+      port: 1514
+      annotations: {}
+    
+    # Cluster Service
+    cluster:
+      type: ClusterIP
+      port: 1516
+      clusterIP: None
+
+# Configurações do Wazuh Indexer (OpenSearch)
+wazuhIndexer:
+  enabled: true
+  replicaCount: 3
+  
+  image:
+    repository: wazuh/wazuh-indexer
+    tag: "5.0.0"
+    pullPolicy: IfNotPresent
+  
+  resources:
+    limits:
+      cpu: 500m
+      memory: 1564Mi
+    requests:
+      cpu: 250m
+      memory: 1Gi
+  
+  # Configurações de armazenamento
+  persistence:
+    enabled: true
+    size: 50Gi
+    storageClass: ""
+    accessModes:
+      - ReadWriteOnce
+  
+  # Java options
+  javaOpts: "-Xms1g -Xmx1g -Dlog4j2.formatMsgNoLookups=true"
+  
+  # Cluster configuration
+  cluster:
+    initialClusterManagerNodes: "wazuh-indexer-0"
+    seedHosts: "wazuh-indexer-0.wazuh-indexer,wazuh-indexer-1.wazuh-indexer,wazuh-indexer-2.wazuh-indexer"
+    maxLocalStorageNodes: 3
+  
+  # Security Context
+  securityContext:
+    fsGroup: 1000
+    privileged: true
+  
+  # Service configuration
+  service:
+    type: ClusterIP
+    ports:
+      rest: 9200
+      nodes: 9300
+    clusterIP: None
+  
+  # Node Selector
+  nodeSelector: {}
+  
+  # Tolerations
+  tolerations: []
+  
+  # Affinity
+  affinity: {}
+  
+  # Network Policies
+  networkPolicy:
+    enabled: false
+
+# Configurações do Wazuh Dashboard
+wazuhDashboard:
+  enabled: true
+  replicaCount: 1
+  
+  image:
+    repository: wazuh/wazuh-dashboard
+    tag: "5.0.0"
+    pullPolicy: IfNotPresent
+  
+  resources:
+    limits:
+      cpu: 500m
+      memory: 1Gi
+    requests:
+      cpu: 250m
+      memory: 512Mi
+  
+  # Service configuration
+  service:
+    type: ClusterIP
+    port: 443
+    annotations: {}
+  
+  # Ingress configuration
+  ingress:
+    enabled: false
+    className: nginx
+    annotations: {}
+      # cert-manager.io/cluster-issuer: letsencrypt-prod
+      # nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+    hosts:
+      - host: wazuh.example.com
+        paths:
+          - path: /
+            pathType: Prefix
+    tls: []
+      # - secretName: wazuh-dashboard-tls
+      #   hosts:
+      #     - wazuh.example.com
+  
+  # Environment variables
+  env:
+    opensearchHosts: "https://wazuh-indexer:9200"
+    serverSslEnabled: "true"
+    wazuhApiUrl: "https://wazuh-api"
+  
+  # Node Selector
+  nodeSelector: {}
+  
+  # Tolerations
+  tolerations: []
+  
+  # Affinity
+  affinity: {}
+  
+  # Network Policies
+  networkPolicy:
+    enabled: false
+
+# Configurações de Secrets
+secrets:
+  # Credenciais do Indexer
+  indexer:
+    username: "admin"
+    password: "SecurePassword123!"  # ALTERE EM PRODUÇÃO
+  
+  # Credenciais do Dashboard
+  dashboard:
+    username: "kibanaserver"
+    password: "kibanaserver"  # ALTERE EM PRODUÇÃO
+  
+  # Credenciais da API do Wazuh
+  wazuhApi:
+    username: "wazuh-wui"
+    password: "MyS3cr37P450r.*-"  # ALTERE EM PRODUÇÃO
+  
+  # Senha do authd
+  authdPass: "please_change_me"  # ALTERE EM PRODUÇÃO
+  
+  # Certificados TLS
+  # Se vazio, serão gerados automaticamente (para desenvolvimento)
+  tls:
+    autoGenerate: true
+    existingSecret: ""
+    caCert: ""
+    serverCert: ""
+    serverKey: ""
+    dashboardCert: ""
+    dashboardKey: ""
+
+# Network Policies
+networkPolicies:
+  enabled: false
+
+# RBAC configuration
+rbac:
+  create: true
+
+# Service Account
+serviceAccount:
+  create: true
+  name: ""
+  annotations: {}
+
+# Pod Security Policy
+podSecurityPolicy:
+  enabled: false

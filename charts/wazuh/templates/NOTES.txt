@@ -1,0 +1,59 @@
+Thank you for installing {{ .Chart.Name }}!
+
+Your release is named {{ .Release.Name }}.
+
+To learn more about the release, try:
+
+  $ helm status {{ .Release.Name }} -n {{ .Release.Namespace }}
+  $ helm get all {{ .Release.Name }} -n {{ .Release.Namespace }}
+
+{{- if .Values.wazuhDashboard.enabled }}
+
+=================================================================================
+WAZUH DASHBOARD ACCESS
+=================================================================================
+
+{{- if .Values.wazuhDashboard.ingress.enabled }}
+
+The Wazuh Dashboard is accessible via Ingress:
+
+{{- range .Values.wazuhDashboard.ingress.hosts }}
+  https://{{ .host }}
+{{- end }}
+
+{{- else if eq .Values.wazuhDashboard.service.type "NodePort" }}
+
+The Wazuh Dashboard is accessible via NodePort:
+
+  export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ include "wazuh.fullname" . }}-dashboard)
+  export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
+  echo "Access the dashboard at: https://$NODE_IP:$NODE_PORT"
+
+{{- else }}
+
+The Wazuh Dashboard is accessible via port-forward:
+
+  kubectl port-forward svc/dashboard 8443:443 -n {{ .Release.Namespace }}
+
+Then access: https://localhost:8443
+
+{{- end }}
+
+Default credentials:
+  Username: {{ .Values.secrets.dashboard.username }}
+  Password: [stored in secret {{ include "wazuh.fullname" . }}-dashboard-cred]
+
+To retrieve the password:
+  kubectl get secret {{ include "wazuh.fullname" . }}-dashboard-cred -n {{ .Release.Namespace }} -o jsonpath="{.data.password}" | base64 -d
+
+{{- end }}
+
+=================================================================================
+IMPORTANT SECURITY NOTES
+=================================================================================
+
+⚠️  Please change default passwords in production!
+⚠️  Configure proper TLS certificates for production use!
+⚠️  Review and adjust resource limits based on your workload!
+
+For more information, visit: https://documentation.wazuh.com

@@ -1,0 +1,24 @@
+{{- if .Values.wazuhIndexer.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "wazuh.fullname" . }}-indexer
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "wazuh.labels" . | nindent 4 }}
+    app: wazuh-indexer
+spec:
+  type: {{ .Values.wazuhIndexer.service.type }}
+  selector:
+    app: wazuh-indexer
+  ports:
+    - name: indexer-rest
+      port: {{ .Values.wazuhIndexer.service.ports.rest }}
+      targetPort: 9200
+    - name: indexer-nodes
+      port: {{ .Values.wazuhIndexer.service.ports.nodes }}
+      targetPort: 9300
+  {{- if .Values.wazuhIndexer.service.clusterIP }}
+  clusterIP: {{ .Values.wazuhIndexer.service.clusterIP }}
+  {{- end }}
+{{- end }}

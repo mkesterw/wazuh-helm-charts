@@ -1,0 +1,150 @@
+{{- if .Values.wazuhManager.master.enabled }}
+apiVersion: {{ include "wazuh.statefulset.apiVersion" . }}
+kind: StatefulSet
+metadata:
+  name: {{ include "wazuh.fullname" . }}-manager-master
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "wazuh.labels" . | nindent 4 }}
+    app: wazuh-manager
+    node-type: master
+spec:
+  replicas: {{ .Values.wazuhManager.master.replicaCount }}
+  selector:
+    matchLabels:
+      app: wazuh-manager
+      node-type: master
+  serviceName: {{ include "wazuh.fullname" . }}-cluster
+  podManagementPolicy: Parallel
+  template:
+    metadata:
+      labels:
+        app: wazuh-manager
+        node-type: master
+        {{- include "wazuh.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "wazuh.serviceAccountName" . }}
+      securityContext:
+        fsGroup: {{ .Values.wazuhManager.master.securityContext.fsGroup }}
+      volumes:
+        - name: wazuh-server-certs
+          secret:
+            secretName: {{ include "wazuh.fullname" . }}-indexer-certs
+        - name: wazuh-authd-pass
+          secret:
+            secretName: {{ include "wazuh.fullname" . }}-authd-pass
+      initContainers:
+        - name: init-wazuh-etc
+          image: "{{ .Values.wazuhManager.master.image.repository }}:{{ .Values.wazuhManager.master.image.tag }}"
+          imagePullPolicy: {{ .Values.wazuhManager.master.image.pullPolicy }}
+          command:
+            - /bin/sh
+            - -c
+            - |
+              if [ -z "$(ls -A /pvc-etc)" ]; then
+                cp -a /var/ossec/etc/* /pvc-etc/
+              fi
+          volumeMounts:
+            - name: {{ include "wazuh.fullname" . }}-manager-master
+              mountPath: /pvc-etc
+              subPath: wazuh/var/ossec/etc
+      containers:
+        - name: wazuh-manager
+          image: "{{ .Values.wazuhManager.master.image.repository }}:{{ .Values.wazuhManager.master.image.tag }}"
+          imagePullPolicy: {{ .Values.wazuhManager.master.image.pullPolicy }}
+          resources:
+            {{- toYaml .Values.wazuhManager.master.resources | nindent 12 }}
+          securityContext:
+            capabilities:
+              add: {{ .Values.wazuhManager.master.securityContext.capabilities.add }}
+          ports:
+            - containerPort: 1514
+              name: agents-events
+            - containerPort: 1515
+              name: registration
+            - containerPort: 1516
+              name: cluster
+            - containerPort: 55000
+              name: api
+          volumeMounts:
+            - name: wazuh-authd-pass
+              mountPath: /wazuh-config-mount/etc/authd.pass
+              subPath: authd.pass
+              readOnly: true
+            - name: {{ include "wazuh.fullname" . }}-manager-master
+              mountPath: /var/ossec/api/configuration
+              subPath: wazuh/var/ossec/api/configuration
+            - name: {{ include "wazuh.fullname" . }}-manager-master
+              mountPath: /var/ossec/etc
+              subPath: wazuh/var/ossec/etc
+            - name: wazuh-server-certs
+              mountPath: /var/ossec/etc/certs/root-ca.pem
+              readOnly: true
+              subPath: root-ca.pem
+            - name: wazuh-server-certs
+              mountPath: /var/ossec/etc/certs/server.pem
+              subPath: server.pem
+              readOnly: true
+            - name: wazuh-server-certs
+              mountPath: /var/ossec/etc/certs/server-key.pem
+              subPath: server-key.pem
+              readOnly: true
+            - name: {{ include "wazuh.fullname" . }}-manager-master
+              mountPath: /var/ossec/logs
+              subPath: wazuh/var/ossec/logs
+            - name: {{ include "wazuh.fullname" . }}-manager-master
+              mountPath: /var/ossec/queue
+              subPath: wazuh/var/ossec/queue
+            - name: {{ include "wazuh.fullname" . }}-manager-master
+              mountPath: /var/ossec/var/multigroups
+              subPath: wazuh/var/ossec/var/multigroups
+            - name: {{ include "wazuh.fullname" . }}-manager-master
+              mountPath: /var/ossec/integrations
+              subPath: wazuh/var/ossec/integrations
+            - name: {{ include "wazuh.fullname" . }}-manager-master
+              mountPath: /var/ossec/active-response/bin
+              subPath: wazuh/var/ossec/active-response/bin
+            - name: {{ include "wazuh.fullname" . }}-manager-master
+              mountPath: /var/ossec/agentless
+              subPath: wazuh/var/ossec/agentless
+            - name: {{ include "wazuh.fullname" . }}-manager-master
+              mountPath: /var/ossec/wodles
+              subPath: wazuh/var/ossec/wodles
+            - name: {{ include "wazuh.fullname" . }}-manager-master
+              mountPath: /etc/filebeat
+              subPath: filebeat/etc/filebeat
+            - name: {{ include "wazuh.fullname" . }}-manager-master
+              mountPath: /var/lib/filebeat
+              subPath: filebeat/var/lib/filebeat
+      {{- with .Values.wazuhManager.master.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.wazuhManager.master.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.wazuhManager.master.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+  {{- if .Values.wazuhManager.master.persistence.enabled }}
+  volumeClaimTemplates:
+    - metadata:
+        name: {{ include "wazuh.fullname" . }}-manager-master
+      spec:
+        accessModes: {{ .Values.wazuhManager.master.persistence.accessModes }}
+        {{- if .Values.wazuhManager.master.persistence.storageClass }}
+        storageClassName: {{ .Values.wazuhManager.master.persistence.storageClass }}
+        {{- else if .Values.global.storageClass }}
+        storageClassName: {{ .Values.global.storageClass }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.wazuhManager.master.persistence.size }}
+  {{- end }}
+{{- end }}

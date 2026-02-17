@@ -1,0 +1,61 @@
+# Valores para ambientes locais (Minikube, Kind, Microk8s)
+
+wazuhManager:
+  master:
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 400m
+        memory: 512Mi
+    
+    persistence:
+      size: 5Gi
+  
+  worker:
+    replicaCount: 1
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 400m
+        memory: 512Mi
+    
+    persistence:
+      size: 5Gi
+
+wazuhIndexer:
+  replicaCount: 1
+  
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
+  
+  persistence:
+    size: 10Gi
+  
+  cluster:
+    initialClusterManagerNodes: "wazuh-indexer-0"
+    seedHosts: "wazuh-indexer-0.wazuh-indexer"
+    maxLocalStorageNodes: 1
+
+wazuhDashboard:
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
+  
+  service:
+    type: NodePort
+
+networkPolicies:
+  enabled: false

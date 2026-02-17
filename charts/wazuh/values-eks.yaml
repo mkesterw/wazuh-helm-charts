@@ -1,0 +1,67 @@
+# Valores específicos para AWS EKS
+
+wazuhManager:
+  master:
+    resources:
+      requests:
+        cpu: 200m
+        memory: 512Mi
+      limits:
+        cpu: 800m
+        memory: 2Gi
+    
+    persistence:
+      storageClass: gp3
+      size: 20Gi
+  
+  worker:
+    resources:
+      requests:
+        cpu: 200m
+        memory: 512Mi
+      limits:
+        cpu: 800m
+        memory: 2Gi
+    
+    persistence:
+      storageClass: gp3
+      size: 20Gi
+
+wazuhIndexer:
+  resources:
+    requests:
+      cpu: 500m
+      memory: 2Gi
+    limits:
+      cpu: 1000m
+      memory: 4Gi
+  
+  persistence:
+    storageClass: gp3
+    size: 100Gi
+
+wazuhDashboard:
+  resources:
+    requests:
+      cpu: 200m
+      memory: 512Mi
+    limits:
+      cpu: 400m
+      memory: 2Gi
+  
+  ingress:
+    enabled: true
+    className: alb
+    annotations:
+      alb.ingress.kubernetes.io/scheme: internet-facing
+      alb.ingress.kubernetes.io/target-type: ip
+      alb.ingress.kubernetes.io/backend-protocol: HTTPS
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+    hosts:
+      - host: wazuh.example.com
+        paths:
+          - path: /
+            pathType: Prefix
+
+networkPolicies:
+  enabled: true

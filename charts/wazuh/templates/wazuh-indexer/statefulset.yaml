@@ -1,0 +1,159 @@
+{{- if .Values.wazuhIndexer.enabled }}
+apiVersion: {{ include "wazuh.statefulset.apiVersion" . }}
+kind: StatefulSet
+metadata:
+  name: {{ include "wazuh.fullname" . }}-indexer
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "wazuh.labels" . | nindent 4 }}
+    app: wazuh-indexer
+spec:
+  replicas: {{ .Values.wazuhIndexer.replicaCount }}
+  selector:
+    matchLabels:
+      app: wazuh-indexer
+  serviceName: {{ include "wazuh.fullname" . }}-indexer
+  template:
+    metadata:
+      labels:
+        app: wazuh-indexer
+        {{- include "wazuh.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "wazuh.serviceAccountName" . }}
+      securityContext:
+        fsGroup: {{ .Values.wazuhIndexer.securityContext.fsGroup }}
+      volumes:
+        - name: indexer-certs
+          secret:
+            secretName: {{ include "wazuh.fullname" . }}-indexer-certs
+            defaultMode: 0600
+      initContainers:
+        - name: volume-mount-hack
+          image: busybox:latest
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 100m
+              memory: 256Mi
+          command:
+            - sh
+            - '-c'
+            - 'chown -R 1000:1000 /var/lib/wazuh-indexer'
+          volumeMounts:
+            - name: {{ include "wazuh.fullname" . }}-indexer
+              mountPath: /var/lib/wazuh-indexer
+        - name: increase-the-vm-max-map-count
+          image: busybox:latest
+          command:
+            - sysctl
+            - -w
+            - vm.max_map_count=262144
+          securityContext:
+            privileged: {{ .Values.wazuhIndexer.securityContext.privileged }}
+      containers:
+        - name: wazuh-indexer
+          image: "{{ .Values.wazuhIndexer.image.repository }}:{{ .Values.wazuhIndexer.image.tag }}"
+          imagePullPolicy: {{ .Values.wazuhIndexer.image.pullPolicy }}
+          resources:
+            {{- toYaml .Values.wazuhIndexer.resources | nindent 12 }}
+          ports:
+            - containerPort: 9200
+              name: indexer-rest
+            - containerPort: 9300
+              name: indexer-nodes
+          env:
+            - name: bootstrap.memory_lock
+              value: "false"
+            - name: network.host
+              value: "0.0.0.0"
+            - name: node.name
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: cluster.initial_cluster_manager_nodes
+              value: {{ .Values.wazuhIndexer.cluster.initialClusterManagerNodes | quote }}
+            - name: discovery.seed_hosts
+              value: {{ .Values.wazuhIndexer.cluster.seedHosts | quote }}
+            - name: node.max_local_storage_nodes
+              value: {{ .Values.wazuhIndexer.cluster.maxLocalStorageNodes | quote }}
+            - name: plugins.security.allow_default_init_securityindex
+              value: "true"
+            - name: NODES_DN
+              value: "CN=indexer,OU=Wazuh,O=Wazuh,L=California,C=US"
+            - name: OPENSEARCH_JAVA_OPTS
+              value: {{ .Values.wazuhIndexer.javaOpts | quote }}
+            - name: DISCOVERY_SERVICE
+              value: {{ include "wazuh.fullname" . }}-indexer
+            - name: KUBERNETES_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: DISABLE_INSTALL_DEMO_CONFIG
+              value: "true"
+            - name: INDEXER_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "wazuh.fullname" . }}-indexer-cred
+                  key: username
+            - name: INDEXER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "wazuh.fullname" . }}-indexer-cred
+                  key: password
+          volumeMounts:
+            - name: {{ include "wazuh.fullname" . }}-indexer
+              mountPath: /var/lib/wazuh-indexer
+            - name: indexer-certs
+              mountPath: /usr/share/wazuh-indexer/certs/root-ca.pem
+              subPath: root-ca.pem
+              readOnly: true
+            - name: indexer-certs
+              mountPath: /usr/share/wazuh-indexer/certs/indexer.pem
+              subPath: server.pem
+              readOnly: true
+            - name: indexer-certs
+              mountPath: /usr/share/wazuh-indexer/certs/indexer-key.pem
+              subPath: server-key.pem
+              readOnly: true
+            - name: indexer-certs
+              mountPath: /usr/share/wazuh-indexer/certs/admin.pem
+              subPath: server.pem
+              readOnly: true
+            - name: indexer-certs
+              mountPath: /usr/share/wazuh-indexer/certs/admin-key.pem
+              subPath: server-key.pem
+              readOnly: true
+      {{- with .Values.wazuhIndexer.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.wazuhIndexer.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.wazuhIndexer.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+  {{- if .Values.wazuhIndexer.persistence.enabled }}
+  volumeClaimTemplates:
+    - metadata:
+        name: {{ include "wazuh.fullname" . }}-indexer
+      spec:
+        accessModes: {{ .Values.wazuhIndexer.persistence.accessModes }}
+        {{- if .Values.wazuhIndexer.persistence.storageClass }}
+        storageClassName: {{ .Values.wazuhIndexer.persistence.storageClass }}
+        {{- else if .Values.global.storageClass }}
+        storageClassName: {{ .Values.global.storageClass }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.wazuhIndexer.persistence.size }}
+  {{- end }}
+{{- end }}

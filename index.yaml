@@ -3,9 +3,9 @@ entries:
   wazuh:
   - apiVersion: v2
     appVersion: 4.9.1
-    created: "2026-02-17T20:25:48.520929316Z"
+    created: "2026-02-17T20:27:41.584733322Z"
     description: Helm chart para implantação completa do Wazuh no Kubernetes
-    digest: aea8751da961e7a885c56b021880124397456be2f9bac1e0af93b1ce20ae97c6
+    digest: 399ef223f07a12717ea4b675d0396bae1f9ea1f0078bb2c307d54bd3880a49c7
     home: https://wazuh.com
     icon: https://wazuh.com/uploads/2022/05/Logo-blogpost.png
     keywords:
@@ -25,4 +25,4 @@ entries:
     urls:
     - https://mkesterw.github.io/wazuh-helm-charts/wazuh-1.0.0.tgz
     version: 1.0.0
-generated: "2026-02-17T20:25:48.519851807Z"
+generated: "2026-02-17T20:27:41.58356312Z"

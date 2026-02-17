@@ -45,7 +45,7 @@ wazuhManager:
   
   worker:
     enabled: true
-    replicaCount: 2
+    replicaCount: 1
     
     image:
       repository: wazuh/wazuh-manager
@@ -97,7 +97,7 @@ wazuhManager:
 # Configurações do Wazuh Indexer
 wazuhIndexer:
   enabled: true
-  replicaCount: 3
+  replicaCount: 1
   
   image:
     repository: wazuh/wazuh-indexer
@@ -120,11 +120,14 @@ wazuhIndexer:
       - ReadWriteOnce
   
   javaOpts: "-Xms1g -Xmx1g -Dlog4j2.formatMsgNoLookups=true"
+
+  security:
+    enabled: false  # ← DESABILITAR Security Plugin
   
   cluster:
     initialClusterManagerNodes: "wazuh-indexer-0"
-    seedHosts: "wazuh-indexer-0.wazuh-indexer,wazuh-indexer-1.wazuh-indexer,wazuh-indexer-2.wazuh-indexer"
-    maxLocalStorageNodes: 3
+    seedHosts: "wazuh-indexer-0.wazuh-indexer"
+    maxLocalStorageNodes: 1
   
   securityContext:
     fsGroup: 1000
@@ -233,3 +236,4 @@ serviceAccount:
 # Pod Security Policy
 podSecurityPolicy:
   enabled: false
+

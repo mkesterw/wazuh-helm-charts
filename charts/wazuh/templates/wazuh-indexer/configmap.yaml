@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "wazuh.fullname" . }}-indexer-config
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "wazuh.labels" . | nindent 4 }}
+    app: wazuh-indexer
+data:
+  opensearch.yml: |
+    network.host: 0.0.0.0
+    node.name: ${node.name}
+    cluster.name: wazuh-cluster
+    cluster.initial_cluster_manager_nodes: {{ .Values.wazuhIndexer.cluster.initialClusterManagerNodes }}
+    discovery.seed_hosts: {{ .Values.wazuhIndexer.cluster.seedHosts }}
+    node.max_local_storage_nodes: {{ .Values.wazuhIndexer.cluster.maxLocalStorageNodes }}
+    
+    # Desabilitar segurança completamente
+    plugins.security.disabled: true
+    
+    # Configurações de rede
+    http.port: 9200
+    transport.port: 9300

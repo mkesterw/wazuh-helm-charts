@@ -1,0 +1,117 @@
+categories:
+  - Security
+  - Monitoring
+
+questions:
+  # Cert-Manager
+  - variable: cert-manager.enabled
+    default: true
+    description: "Instalar cert-manager automaticamente (recomendado)"
+    type: boolean
+    label: Habilitar cert-manager
+    group: "Certificados"
+  
+  - variable: certificates.enabled
+    default: true
+    description: "Gerar certificados TLS automaticamente"
+    type: boolean
+    label: Gerar Certificados
+    group: "Certificados"
+    show_if: "cert-manager.enabled=true"
+  
+  - variable: certificates.duration
+    default: "2160h"
+    description: "Duração dos certificados (em horas)"
+    type: string
+    label: Duração dos Certificados
+    group: "Certificados"
+    show_if: "certificates.enabled=true"
+
+  # Wazuh Indexer
+  - variable: wazuhIndexer.enabled
+    default: true
+    description: "Habilitar Wazuh Indexer (OpenSearch)"
+    type: boolean
+    label: Habilitar Indexer
+    group: "Componentes"
+  
+  - variable: wazuhIndexer.replicaCount
+    default: 1
+    description: "Número de réplicas do Indexer"
+    type: int
+    label: Réplicas do Indexer
+    group: "Componentes"
+    show_if: "wazuhIndexer.enabled=true"
+  
+  - variable: wazuhIndexer.persistence.size
+    default: "50Gi"
+    description: "Tamanho do disco para Indexer"
+    type: string
+    label: Tamanho do Disco
+    group: "Storage"
+    show_if: "wazuhIndexer.enabled=true"
+
+  # Wazuh Dashboard
+  - variable: wazuhDashboard.enabled
+    default: true
+    description: "Habilitar Wazuh Dashboard"
+    type: boolean
+    label: Habilitar Dashboard
+    group: "Componentes"
+  
+  - variable: wazuhDashboard.service.type
+    default: "NodePort"
+    description: "Tipo de serviço do Dashboard"
+    type: enum
+    options:
+      - "ClusterIP"
+      - "NodePort"
+      - "LoadBalancer"
+    label: Tipo de Serviço
+    group: "Acesso"
+    show_if: "wazuhDashboard.enabled=true"
+
+  # Wazuh Manager
+  - variable: wazuhManager.master.enabled
+    default: true
+    description: "Habilitar Wazuh Manager Master"
+    type: boolean
+    label: Habilitar Manager Master
+    group: "Componentes"
+  
+  - variable: wazuhManager.worker.enabled
+    default: false
+    description: "Habilitar Wazuh Manager Workers"
+    type: boolean
+    label: Habilitar Workers
+    group: "Componentes"
+  
+  - variable: wazuhManager.worker.replicaCount
+    default: 2
+    description: "Número de Workers"
+    type: int
+    label: Número de Workers
+    group: "Componentes"
+    show_if: "wazuhManager.worker.enabled=true"
+
+  # Secrets
+  - variable: secrets.indexer.password
+    default: "SecurePassword123!"
+    description: "Senha do admin do Indexer"
+    type: password
+    label: Senha do Indexer
+    group: "Credenciais"
+  
+  - variable: secrets.dashboard.password
+    default: "kibanaserver"
+    description: "Senha do Dashboard"
+    type: password
+    label: Senha do Dashboard
+    group: "Credenciais"
+  
+  - variable: secrets.wazuhApi.password
+    default: "MyS3cr37P450r.*-"
+    description: "Senha da API do Wazuh"
+    type: password
+    label: Senha da API
+    group: "Credenciais"

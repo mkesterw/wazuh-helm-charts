@@ -1,9 +1,8 @@
-# charts/wazuh/Chart.yaml
 apiVersion: v2
 name: wazuh
 description: Helm chart para implantação completa do Wazuh no Kubernetes
 type: application
-version: 1.0.1  # ← Incrementar versão
+version: 1.0.2  # ← Incrementar versão
 appVersion: "4.9.1"
 
 keywords:
@@ -15,16 +14,16 @@ keywords:
 
 home: https://wazuh.com
 sources:
-  - https://github.com/wazuh/wazuh-kubernetes
   - https://github.com/wazuh/wazuh
+  - https://github.com/seu-usuario/wazuh-helm-charts
 
 maintainers:
-  - name: Seu Nome
-    email: seu-email@example.com
+  - name: DevOps Team
+    email: devops@example.com
 
 icon: https://wazuh.com/uploads/2022/05/Logo-blogpost.png
 
-# ← ADICIONAR DEPENDÊNCIA
+# Dependências
 dependencies:
   - name: cert-manager
     version: "v1.14.4"

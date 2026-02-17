@@ -12,11 +12,28 @@ global:
 ## Se você não tem cert-manager instalado, instale com:
 ## kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.14.4/cert-manager.yaml
 cert-manager:
-  enabled: false  # Set to true if you want to deploy cert-manager with this chart
-  installCRDs: true
+  enabled: true  # ← TRUE para instalar automaticamente
+  installCRDs: true  # Instalar CRDs do cert-manager
+  
+  # Configurações do cert-manager (opcional)
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+  
+  webhook:
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+  
+  cainjector:
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
 
 ## Certificates Configuration
-## Gera certificados TLS automaticamente usando cert-manager
 certificates:
   enabled: true
   duration: 2160h # 90 dias

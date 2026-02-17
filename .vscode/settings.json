@@ -1,0 +1,32 @@
+{
+  "yaml.schemas": {
+    "https://json.schemastore.org/helmchart.json": "charts/*/Chart.yaml",
+    "https://json.schemastore.org/helmvalues.json": "charts/*/values.yaml"
+  },
+  "yaml.customTags": [
+    "!And",
+    "!If",
+    "!Not",
+    "!Equals",
+    "!Or",
+    "!FindInMap sequence",
+    "!Base64",
+    "!Cidr",
+    "!Ref",
+    "!Sub",
+    "!GetAtt",
+    "!GetAZs",
+    "!ImportValue",
+    "!Select",
+    "!Split",
+    "!Join sequence"
+  ],
+  "files.associations": {
+    "*.yaml": "helm"
+  },
+  "files.exclude": {
+    "**/.git": true,
+    "**/*.tgz": true,
+    "**/Chart.lock": true
+  }
+}

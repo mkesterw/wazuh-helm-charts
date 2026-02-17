@@ -1,0 +1,73 @@
+name: Build and Release Helm Chart
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build-chart:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: v3.14.0
+
+      - name: Add Helm Repos
+        run: |
+          helm repo add jetstack https://charts.jetstack.io
+          helm repo update
+
+      - name: Build Dependencies
+        run: |
+          cd charts/wazuh
+          helm dependency build
+          ls -la charts/
+          cd ../..
+
+      - name: Package Chart
+        run: |
+          helm package charts/wazuh
+          ls -lh wazuh-*.tgz
+
+      - name: Verify cert-manager in package
+        run: |
+          echo "Checking if cert-manager is in the package..."
+          tar -tzf wazuh-*.tgz | grep cert-manager || {
+            echo "ERROR: cert-manager not found in package!"
+            exit 1
+          }
+          echo "✅ cert-manager found in package"
+
+      - name: Create Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            wazuh-*.tgz
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate Helm Index
+        run: |
+          mkdir -p packages
+          cp wazuh-*.tgz packages/
+          helm repo index packages --url https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/packages
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./packages
+          destination_dir: packages
+          keep_files: true

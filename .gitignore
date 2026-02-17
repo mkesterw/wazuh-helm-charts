@@ -1,24 +1,21 @@
 # Helm
 *.tgz
-.cr-release-packages/
-.cr-index/
+*.lock
+charts/*/charts/
 
-# IDEs
-.vscode/
-.idea/
-*.swp
-*.swo
+# Temporary
+*.tmp
+*.bak
 *~
+
+# IDE
+.vscode/*
+!.vscode/extensions.json
+.idea/
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Temporary files
-*.tmp
-*.bak
+# Logs
 *.log
-
-# Build artifacts
-dist/
-build/

@@ -1,0 +1,53 @@
+name: Release Helm Chart
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+
+      - name: Install Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: v3.14.0
+
+      - name: Add Helm Repositories
+        run: |
+          helm repo add jetstack https://charts.jetstack.io
+          helm repo update
+
+      - name: Build Chart Dependencies
+        run: |
+          cd charts/wazuh
+          helm dependency build
+          cd ../..
+
+      - name: Package Chart
+        run: |
+          helm package charts/wazuh -d packages
+
+      - name: Generate Index
+        run: |
+          helm repo index packages --url https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/packages
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./packages
+          destination_dir: packages
+          keep_files: true

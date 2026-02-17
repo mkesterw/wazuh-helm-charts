@@ -1,8 +1,16 @@
 apiVersion: v2
 name: wazuh
-description: Helm chart para implantação completa do Wazuh no Kubernetes
+description: |
+  Wazuh Security Platform - SIEM, XDR e Compliance open-source.
+  
+  Este chart instala:
+  - Wazuh Manager (servidor de gerenciamento)
+  - Wazuh Indexer (OpenSearch)
+  - Wazuh Dashboard (interface web)
+  - cert-manager (geração automática de certificados TLS)
+
 type: application
-version: 1.0.3  # ← Incrementar versão
+version: 1.0.2
 appVersion: "4.9.1"
 
 keywords:
@@ -11,17 +19,39 @@ keywords:
   - monitoring
   - siem
   - xdr
+  - opensearch
+  - threat-detection
+  - compliance
 
 home: https://wazuh.com
 sources:
   - https://github.com/wazuh/wazuh
-  - https://github.com/seu-usuario/wazuh-helm-charts
+  - https://github.com/wazuh/wazuh-kubernetes
 
 maintainers:
   - name: DevOps Team
     email: devops@example.com
 
 icon: https://wazuh.com/uploads/2022/05/Logo-blogpost.png
+
+# Anotações para Rancher
+annotations:
+  catalog.cattle.io/display-name: "Wazuh Security Platform"
+  catalog.cattle.io/upstream-version: "4.9.1"
+  catalog.cattle.io/kube-version: ">=1.19.0-0"
+  catalog.cattle.io/os: "linux"
+  catalog.cattle.io/certified: "false"
+  catalog.cattle.io/release-name: "wazuh"
+  
+  # URLs
+  catalog.cattle.io/documentation-url: https://documentation.wazuh.com
+  catalog.cattle.io/support-url: https://github.com/wazuh/wazuh/issues
+  
+  # Categorias
+  catalog.cattle.io/categories: |
+    - Security
+    - Monitoring
+    - Logging
 
 # Dependências
 dependencies:

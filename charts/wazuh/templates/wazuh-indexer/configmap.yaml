@@ -15,9 +15,14 @@ data:
     discovery.seed_hosts: {{ .Values.wazuhIndexer.cluster.seedHosts }}
     node.max_local_storage_nodes: {{ .Values.wazuhIndexer.cluster.maxLocalStorageNodes }}
     
-    # Desabilitar segurança completamente
+    # Desabilitar Security Plugin completamente
     plugins.security.disabled: true
     
     # Configurações de rede
     http.port: 9200
     transport.port: 9300
+    http.cors.enabled: true
+    http.cors.allow-origin: "*"
+    
+    # Performance
+    bootstrap.memory_lock: false

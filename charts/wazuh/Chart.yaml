@@ -3,7 +3,7 @@ name: wazuh
 description: Helm chart para implantação completa do Wazuh no Kubernetes
 type: application
 version: 1.0.0
-appVersion: "5.0.0"
+appVersion: "4.9.1"  # ← MUDOU de 5.0.0 para 4.9.1
 keywords:
   - wazuh
   - security

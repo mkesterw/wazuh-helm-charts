@@ -37,21 +37,6 @@ spec:
         - name: wazuh-authd-pass
           secret:
             secretName: {{ include "wazuh.fullname" . }}-authd-pass
-      initContainers:
-        - name: init-wazuh-etc
-          image: "{{ .Values.wazuhManager.master.image.repository }}:{{ .Values.wazuhManager.master.image.tag }}"
-          imagePullPolicy: {{ .Values.wazuhManager.master.image.pullPolicy }}
-          command:
-            - /bin/sh
-            - -c
-            - |
-              if [ -z "$(ls -A /pvc-etc)" ]; then
-                cp -a /var/ossec/etc/* /pvc-etc/
-              fi
-          volumeMounts:
-            - name: {{ include "wazuh.fullname" . }}-manager-master
-              mountPath: /pvc-etc
-              subPath: wazuh/var/ossec/etc
       containers:
         - name: wazuh-manager
           image: "{{ .Values.wazuhManager.master.image.repository }}:{{ .Values.wazuhManager.master.image.tag }}"

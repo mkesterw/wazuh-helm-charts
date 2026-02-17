@@ -80,7 +80,7 @@ spec:
                   name: {{ include "wazuh.fullname" . }}-wazuh-api-cred
                   key: password
           volumeMounts:
-            - name: dashboard-certs
+            {% comment %} - name: dashboard-certs
               mountPath: /etc/wazuh-dashboard/certs/dashboard.pem  # ← MUDOU O PATH
               readOnly: true
               subPath: dashboard.pem
@@ -91,7 +91,7 @@ spec:
             - name: dashboard-certs
               mountPath: /etc/wazuh-dashboard/certs/root-ca.pem  # ← MUDOU O PATH
               subPath: root-ca.pem
-              readOnly: true
+              readOnly: true {% endcomment %}
           livenessProbe:
             httpGet:
               path: /app/login

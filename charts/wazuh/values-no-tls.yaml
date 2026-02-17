@@ -1,0 +1,14 @@
+# Desabilitar TLS para teste inicial
+
+wazuhDashboard:
+  env:
+    serverSslEnabled: "false"  # ← Desabilitar SSL
+  
+  service:
+    type: NodePort  # ← Facilitar acesso
+    port: 5601  # ← Porta HTTP padrão (sem SSL)
+
+# Desabilitar montagem de certificados
+secrets:
+  tls:
+    autoGenerate: false  # ← Não gerar certificados

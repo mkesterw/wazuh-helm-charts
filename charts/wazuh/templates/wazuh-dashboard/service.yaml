@@ -18,7 +18,11 @@ spec:
   ports:
     - name: dashboard
       port: {{ .Values.wazuhDashboard.service.port }}
+      {{- if eq .Values.wazuhDashboard.env.serverSslEnabled "true" }}
       targetPort: 443
+      {{- else }}
+      targetPort: 5601
+      {{- end }}
       {{- if and (eq .Values.wazuhDashboard.service.type "NodePort") .Values.wazuhDashboard.service.nodePort }}
       nodePort: {{ .Values.wazuhDashboard.service.nodePort }}
       {{- end }}

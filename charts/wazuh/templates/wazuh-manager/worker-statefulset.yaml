@@ -55,21 +55,6 @@ spec:
         - name: wazuh-server-certs
           secret:
             secretName: {{ include "wazuh.fullname" . }}-indexer-certs
-      initContainers:
-        - name: init-wazuh-etc
-          image: "{{ .Values.wazuhManager.worker.image.repository }}:{{ .Values.wazuhManager.worker.image.tag }}"
-          imagePullPolicy: {{ .Values.wazuhManager.worker.image.pullPolicy }}
-          command:
-            - /bin/sh
-            - -c
-            - |
-              if [ -z "$(ls -A /pvc-etc)" ]; then
-                cp -a /var/ossec/etc/* /pvc-etc/
-              fi
-          volumeMounts:
-            - name: {{ include "wazuh.fullname" . }}-manager-worker
-              mountPath: /pvc-etc
-              subPath: wazuh/var/ossec/etc
       containers:
         - name: wazuh-manager
           image: "{{ .Values.wazuhManager.worker.image.repository }}:{{ .Values.wazuhManager.worker.image.tag }}"

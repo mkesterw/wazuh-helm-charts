@@ -150,7 +150,7 @@ wazuhDashboard:
   
   image:
     repository: wazuh/wazuh-dashboard
-    tag: "4.9.1"  # ← MUDOU de 5.0.0 para 4.9.1
+    tag: "4.9.1"
     pullPolicy: IfNotPresent
   
   resources:
@@ -162,8 +162,8 @@ wazuhDashboard:
       memory: 512Mi
   
   service:
-    type: ClusterIP
-    port: 443
+    type: NodePort
+    port: 5601  # ← Porta HTTP
     annotations: {}
   
   ingress:
@@ -178,9 +178,9 @@ wazuhDashboard:
     tls: []
   
   env:
-    opensearchHosts: "https://wazuh-indexer:9200"
-    serverSslEnabled: "true"
-    wazuhApiUrl: "https://wazuh-api"
+    opensearchHosts: "http://wazuh-indexer:9200"  # ← HTTP sem HTTPS
+    serverSslEnabled: "false"  # ← Desabilitar SSL
+    wazuhApiUrl: "http://wazuh-api:55000"  # ← HTTP sem HTTPS
   
   nodeSelector: {}
   tolerations: []

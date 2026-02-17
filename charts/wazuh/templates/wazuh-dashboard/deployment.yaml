@@ -23,10 +23,12 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       serviceAccountName: {{ include "wazuh.serviceAccountName" . }}
+      {{- if eq .Values.wazuhDashboard.env.serverSslEnabled "true" }}
       volumes:
         - name: dashboard-certs
           secret:
             secretName: {{ include "wazuh.fullname" . }}-dashboard-certs
+      {{- end }}
       containers:
         - name: wazuh-dashboard
           image: "{{ .Values.wazuhDashboard.image.repository }}:{{ .Values.wazuhDashboard.image.tag }}"
@@ -34,8 +36,13 @@ spec:
           resources:
             {{- toYaml .Values.wazuhDashboard.resources | nindent 12 }}
           ports:
+            {{- if eq .Values.wazuhDashboard.env.serverSslEnabled "true" }}
             - containerPort: 443
               name: dashboard
+            {{- else }}
+            - containerPort: 5601
+              name: dashboard
+            {{- end }}
           env:
             - name: OPENSEARCH_HOSTS
               value: {{ .Values.wazuhDashboard.env.opensearchHosts | quote }}
@@ -61,12 +68,14 @@ spec:
                   key: password
             - name: SERVER_SSL_ENABLED
               value: {{ .Values.wazuhDashboard.env.serverSslEnabled | quote }}
+            {{- if eq .Values.wazuhDashboard.env.serverSslEnabled "true" }}
             - name: SERVER_SSL_CERTIFICATE
-              value: /etc/wazuh-dashboard/certs/dashboard.pem  # ← MUDOU O PATH
+              value: /etc/wazuh-dashboard/certs/dashboard.pem
             - name: SERVER_SSL_KEY
-              value: /etc/wazuh-dashboard/certs/dashboard-key.pem  # ← MUDOU O PATH
+              value: /etc/wazuh-dashboard/certs/dashboard-key.pem
             - name: OPENSEARCH_SSL_CERTIFICATE_AUTHORITIES
-              value: /etc/wazuh-dashboard/certs/root-ca.pem  # ← MUDOU O PATH
+              value: /etc/wazuh-dashboard/certs/root-ca.pem
+            {{- end }}
             - name: WAZUH_API_URL
               value: {{ .Values.wazuhDashboard.env.wazuhApiUrl | quote }}
             - name: API_USERNAME
@@ -79,34 +88,46 @@ spec:
                 secretKeyRef:
                   name: {{ include "wazuh.fullname" . }}-wazuh-api-cred
                   key: password
+          {{- if eq .Values.wazuhDashboard.env.serverSslEnabled "true" }}
           volumeMounts:
-            {% comment %} - name: dashboard-certs
-              mountPath: /etc/wazuh-dashboard/certs/dashboard.pem  # ← MUDOU O PATH
+            - name: dashboard-certs
+              mountPath: /etc/wazuh-dashboard/certs/dashboard.pem
               readOnly: true
               subPath: dashboard.pem
             - name: dashboard-certs
-              mountPath: /etc/wazuh-dashboard/certs/dashboard-key.pem  # ← MUDOU O PATH
+              mountPath: /etc/wazuh-dashboard/certs/dashboard-key.pem
               readOnly: true
               subPath: dashboard-key.pem
             - name: dashboard-certs
-              mountPath: /etc/wazuh-dashboard/certs/root-ca.pem  # ← MUDOU O PATH
+              mountPath: /etc/wazuh-dashboard/certs/root-ca.pem
               subPath: root-ca.pem
-              readOnly: true {% endcomment %}
+              readOnly: true
+          {{- end }}
           livenessProbe:
             httpGet:
               path: /app/login
+              {{- if eq .Values.wazuhDashboard.env.serverSslEnabled "true" }}
               port: 443
               scheme: HTTPS
+              {{- else }}
+              port: 5601
+              scheme: HTTP
+              {{- end }}
             initialDelaySeconds: 120
             periodSeconds: 30
             timeoutSeconds: 10
-            failureThreshold: 5  # ← AUMENTEI PARA 5
+            failureThreshold: 5
           readinessProbe:
             httpGet:
               path: /app/login
+              {{- if eq .Values.wazuhDashboard.env.serverSslEnabled "true" }}
               port: 443
               scheme: HTTPS
-            initialDelaySeconds: 60  # ← AUMENTEI PARA 60
+              {{- else }}
+              port: 5601
+              scheme: HTTP
+              {{- end }}
+            initialDelaySeconds: 60
             periodSeconds: 10
             timeoutSeconds: 5
             failureThreshold: 3

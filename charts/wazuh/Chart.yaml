@@ -2,7 +2,7 @@ apiVersion: v2
 name: wazuh
 description: Helm chart para implantação completa do Wazuh no Kubernetes
 type: application
-version: 1.0.2  # ← Incrementar versão
+version: 1.0.3  # ← Incrementar versão
 appVersion: "4.9.1"
 
 keywords:

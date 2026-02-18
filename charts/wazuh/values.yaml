@@ -228,6 +228,13 @@ wazuhDashboard:
 
 # Configurações de Secrets
 secrets:
+  # TLS/SSL Certificates configuration
+  tls:
+    # Auto-generate self-signed certificates (for testing only)
+    autoGenerate: false
+    # Use existing secret with certificates
+    existingSecret: ""
+  
   indexer:
     username: "admin"
     password: "SecurePassword123!"

@@ -57,14 +57,14 @@ spec:
             - sh
             - -c
             - |
-              mkdir -p /usr/share/wazuh-indexer/config/certs
-              cp /tmp-certs-node/tls.crt /usr/share/wazuh-indexer/config/certs/node.pem
-              cp /tmp-certs-node/tls.key /usr/share/wazuh-indexer/config/certs/node-key.pem
-              cp /tmp-certs-ca/ca.crt /usr/share/wazuh-indexer/config/certs/root-ca.pem
-              cp /tmp-certs-admin/tls.crt /usr/share/wazuh-indexer/config/certs/admin.pem
-              cp /tmp-certs-admin/tls.key /usr/share/wazuh-indexer/config/certs/admin-key.pem
-              chmod 644 /usr/share/wazuh-indexer/config/certs/*.pem
-              chown -R 1000:1000 /usr/share/wazuh-indexer/config/certs
+              mkdir -p /usr/share/wazuh-indexer/certs
+              cp /tmp-certs-node/tls.crt /usr/share/wazuh-indexer/certs/node.pem
+              cp /tmp-certs-node/tls.key /usr/share/wazuh-indexer/certs/node-key.pem
+              cp /tmp-certs-ca/ca.crt /usr/share/wazuh-indexer/certs/root-ca.pem
+              cp /tmp-certs-admin/tls.crt /usr/share/wazuh-indexer/certs/admin.pem
+              cp /tmp-certs-admin/tls.key /usr/share/wazuh-indexer/certs/admin-key.pem
+              chmod 644 /usr/share/wazuh-indexer/certs/*.pem
+              chown -R 1000:1000 /usr/share/wazuh-indexer/certs
           volumeMounts:
             - name: indexer-certs
               mountPath: /tmp-certs-node
@@ -73,7 +73,7 @@ spec:
             - name: ca-cert
               mountPath: /tmp-certs-ca
             - name: certs-volume
-              mountPath: /usr/share/wazuh-indexer/config/certs
+              mountPath: /usr/share/wazuh-indexer/certs
           resources:
             limits:
               cpu: 100m
@@ -128,7 +128,7 @@ spec:
             - name: OPENSEARCH_JAVA_OPTS
               value: {{ .Values.wazuhIndexer.javaOpts | quote }}
             - name: OPENSEARCH_PATH_CONF
-              value: "/usr/share/wazuh-indexer/config"
+              value: "/usr/share/wazuh-indexer"
             - name: DISCOVERY_SERVICE
               value: {{ include "wazuh.fullname" . }}-indexer
             - name: KUBERNETES_NAMESPACE
@@ -151,11 +151,44 @@ spec:
                   key: password
           volumeMounts:
             - name: indexer-config
-              mountPath: /usr/share/wazuh-indexer/config
+              mountPath: /usr/share/wazuh-indexer/opensearch.yml
+              subPath: opensearch.yml
+              readOnly: true
+            - name: indexer-config
+              mountPath: /usr/share/wazuh-indexer/internal_users.yml
+              subPath: internal_users.yml
+              readOnly: true
+            - name: indexer-config
+              mountPath: /usr/share/wazuh-indexer/roles.yml
+              subPath: roles.yml
+              readOnly: true
+            - name: indexer-config
+              mountPath: /usr/share/wazuh-indexer/roles_mapping.yml
+              subPath: roles_mapping.yml
+              readOnly: true
+            - name: indexer-config
+              mountPath: /usr/share/wazuh-indexer/config.yml
+              subPath: config.yml
+              readOnly: true
+            - name: indexer-config
+              mountPath: /usr/share/wazuh-indexer/tenants.yml
+              subPath: tenants.yml
+              readOnly: true
+            - name: indexer-config
+              mountPath: /usr/share/wazuh-indexer/nodes_dn.yml
+              subPath: nodes_dn.yml
+              readOnly: true
+            - name: indexer-config
+              mountPath: /usr/share/wazuh-indexer/whitelist.yml
+              subPath: whitelist.yml
+              readOnly: true
+            - name: indexer-config
+              mountPath: /usr/share/wazuh-indexer/security.yml
+              subPath: security.yml
               readOnly: true
             {{- if .Values.certificates.enabled }}
             - name: certs-volume
-              mountPath: /usr/share/wazuh-indexer/config/certs
+              mountPath: /usr/share/wazuh-indexer/certs
               readOnly: true
             {{- end }}
             - name: {{ include "wazuh.fullname" . }}-indexer

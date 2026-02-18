@@ -76,6 +76,7 @@ spec:
             - name: {{ include "wazuh.fullname" . }}-manager-worker
               mountPath: /var/ossec/etc
               subPath: wazuh/var/ossec/etc
+            {{- if .Values.certificates.enabled }}
             - name: wazuh-server-certs
               mountPath: /var/ossec/etc/certs/root-ca.pem
               readOnly: true
@@ -88,6 +89,7 @@ spec:
               mountPath: /var/ossec/etc/certs/server-key.pem
               subPath: server-key.pem
               readOnly: true
+            {{- end }}
             - name: {{ include "wazuh.fullname" . }}-manager-worker
               mountPath: /var/ossec/logs
               subPath: wazuh/var/ossec/logs

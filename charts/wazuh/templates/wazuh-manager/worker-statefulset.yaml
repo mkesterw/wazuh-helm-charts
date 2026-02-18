@@ -52,9 +52,11 @@ spec:
                     node-type: worker
       {{- end }}
       volumes:
+        {{- if .Values.certificates.enabled }}
         - name: wazuh-server-certs
           secret:
             secretName: {{ include "wazuh.fullname" . }}-indexer-admin-certs
+        {{- end }}
       containers:
         - name: wazuh-manager
           image: "{{ .Values.wazuhManager.worker.image.repository }}:{{ .Values.wazuhManager.worker.image.tag }}"

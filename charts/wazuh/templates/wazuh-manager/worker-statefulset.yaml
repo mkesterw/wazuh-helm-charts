@@ -54,7 +54,7 @@ spec:
       volumes:
         - name: wazuh-server-certs
           secret:
-            secretName: {{ include "wazuh.fullname" . }}-indexer-certs
+            secretName: {{ include "wazuh.fullname" . }}-indexer-admin-certs
       containers:
         - name: wazuh-manager
           image: "{{ .Values.wazuhManager.worker.image.repository }}:{{ .Values.wazuhManager.worker.image.tag }}"

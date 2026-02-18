@@ -33,7 +33,7 @@ spec:
       volumes:
         - name: wazuh-server-certs
           secret:
-            secretName: {{ include "wazuh.fullname" . }}-indexer-certs
+            secretName: {{ include "wazuh.fullname" . }}-indexer-admin-certs
         - name: wazuh-authd-pass
           secret:
             secretName: {{ include "wazuh.fullname" . }}-authd-pass

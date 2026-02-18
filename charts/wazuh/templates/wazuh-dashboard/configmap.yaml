@@ -26,6 +26,7 @@ data:
     opensearch.ssl.certificateAuthorities: ["/usr/share/wazuh-dashboard/certs/root-ca.pem"]
     {{- else }}
     opensearch.ssl.verificationMode: none
+    opensearch_security.enabled: false
     {{- end }}
     opensearch.username: "${DASHBOARD_USERNAME}"
     opensearch.password: "${DASHBOARD_PASSWORD}"

@@ -51,6 +51,13 @@ data:
     # Security disabled for initial setup
     plugins.security.disabled: true
     {{- end }}
+  
+  security.yml: |
+    _meta:
+      type: "config"
+      config_version: 2
+    config:
+      dynamic: {}
     
   internal_users.yml: |
     _meta:

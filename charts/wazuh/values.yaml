@@ -9,11 +9,11 @@ global:
   imagePullSecrets: []
 
 ## Cert-Manager Configuration
-## Se você não tem cert-manager instalado, instale com:
-## kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.14.4/cert-manager.yaml
+## IMPORTANTE: Se o cert-manager já está instalado no cluster (comum no Rancher),
+## deixe enabled: false. Caso contrário, você pode habilitar para instalação automática.
 cert-manager:
-  enabled: true  # ← TRUE para instalar automaticamente
-  installCRDs: true  # Instalar CRDs do cert-manager
+  enabled: false  # ← FALSE se já estiver instalado no cluster
+  installCRDs: true  # Instalar CRDs do cert-manager (apenas se enabled: true)
   
   # Configurações do cert-manager (opcional)
   resources:

@@ -10,7 +10,7 @@ description: |
   - cert-manager (geração automática de certificados TLS)
 
 type: application
-version: 1.2.0
+version: 1.2.1
 appVersion: "4.9.1"
 
 keywords:
@@ -54,8 +54,10 @@ annotations:
     - Logging
 
 # Dependências
-dependencies:
-  - name: cert-manager
-    version: "v1.14.4"
-    repository: https://charts.jetstack.io
-    condition: cert-manager.enabled
+# IMPORTANTE: O cert-manager deve ser instalado manualmente antes de habilitar certificados
+# kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.14.4/cert-manager.yaml
+#dependencies:
+#  - name: cert-manager
+#    version: "v1.14.4"
+#    repository: https://charts.jetstack.io
+#    condition: cert-manager.enabled

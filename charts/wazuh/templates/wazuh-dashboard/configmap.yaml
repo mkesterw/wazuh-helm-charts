@@ -21,8 +21,12 @@ data:
     {{- end }}
     
     opensearch.hosts: ["{{ .Values.wazuhDashboard.env.opensearchHosts }}"]
+    {{- if .Values.certificates.enabled }}
     opensearch.ssl.verificationMode: certificate
     opensearch.ssl.certificateAuthorities: ["/usr/share/wazuh-dashboard/certs/root-ca.pem"]
+    {{- else }}
+    opensearch.ssl.verificationMode: none
+    {{- end }}
     opensearch.username: "${DASHBOARD_USERNAME}"
     opensearch.password: "${DASHBOARD_PASSWORD}"
     opensearch.requestHeadersWhitelist: ["securitytenant","Authorization"]

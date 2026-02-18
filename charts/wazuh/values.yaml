@@ -35,7 +35,7 @@ cert-manager:
 
 ## Certificates Configuration
 certificates:
-  enabled: true
+  enabled: false  # Habilitar apenas após instalar cert-manager manualmente
   duration: 2160h # 90 dias
   renewBefore: 360h # 15 dias
   issuer:
@@ -216,8 +216,8 @@ wazuhDashboard:
     tls: []
   
   env:
-    opensearchHosts: "https://wazuh-indexer:9200"
-    serverSslEnabled: "true"
+    opensearchHosts: "http://wazuh-indexer:9200"  # Use https:// quando certificates.enabled: true
+    serverSslEnabled: "false"  # Mudar para "true" quando certificates.enabled: true
     wazuhApiUrl: "https://wazuh-api:55000"
   
   nodeSelector: {}

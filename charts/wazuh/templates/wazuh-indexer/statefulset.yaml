@@ -91,6 +91,8 @@ spec:
               value: {{ .Values.wazuhIndexer.cluster.maxLocalStorageNodes | quote }}
             - name: OPENSEARCH_JAVA_OPTS
               value: {{ .Values.wazuhIndexer.javaOpts | quote }}
+            - name: OPENSEARCH_PATH_CONF
+              value: "/usr/share/wazuh-indexer/config"
             - name: DISCOVERY_SERVICE
               value: {{ include "wazuh.fullname" . }}-indexer
             - name: KUBERNETES_NAMESPACE
@@ -98,7 +100,7 @@ spec:
                 fieldRef:
                   fieldPath: metadata.namespace
             - name: DISABLE_SECURITY_PLUGIN
-              value: "true"
+              value: "false"
             - name: DISABLE_INSTALL_DEMO_CONFIG
               value: "true"
             - name: INDEXER_USERNAME
@@ -113,8 +115,7 @@ spec:
                   key: password
           volumeMounts:
             - name: indexer-config
-              mountPath: /usr/share/wazuh-indexer/config/opensearch.yml
-              subPath: opensearch.yml
+              mountPath: /usr/share/wazuh-indexer/config
               readOnly: true
             - name: indexer-certs
               mountPath: /usr/share/wazuh-indexer/certs/node.pem

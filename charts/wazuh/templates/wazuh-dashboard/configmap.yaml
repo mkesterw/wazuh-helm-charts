@@ -34,9 +34,6 @@ data:
     server.defaultRoute: /app/wz-home
     uiSettings.overrides.defaultRoute: /app/wz-home
     
-    # Wazuh API configuration
-    wazuh.api.url: {{ .Values.wazuhDashboard.env.wazuhApiUrl | quote }}
-    
     # Logging
     logging.dest: stdout
     logging.silent: false

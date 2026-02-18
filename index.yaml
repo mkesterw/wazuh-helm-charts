@@ -16,7 +16,7 @@ entries:
       catalog.cattle.io/upstream-version: 4.9.1
     apiVersion: v2
     appVersion: 4.9.1
-    created: "2026-02-18T14:33:13.815353412Z"
+    created: "2026-02-18T14:39:19.407053674Z"
     dependencies:
     - condition: cert-manager.enabled
       name: cert-manager
@@ -26,7 +26,7 @@ entries:
       chart instala: - Wazuh Manager (servidor de gerenciamento) - Wazuh Indexer (OpenSearch)
       - Wazuh Dashboard (interface web) - cert-manager (geração automática de certificados
       TLS) '
-    digest: 5d2b253509b40bc3f6ec782cee7e8fa89360a583c29098e344f9b4aca740530c
+    digest: e78845be580308b3fce37b02cbac4d5b763d84ce76df641ef7e9485076a10dac
     home: https://wazuh.com
     icon: https://wazuh.com/uploads/2022/05/Logo-blogpost.png
     keywords:
@@ -47,6 +47,6 @@ entries:
     - https://github.com/wazuh/wazuh-kubernetes
     type: application
     urls:
-    - https://mkesterw.github.io/wazuh-helm-charts/wazuh-1.0.9.tgz
-    version: 1.0.9
-generated: "2026-02-18T14:33:13.810072495Z"
+    - https://mkesterw.github.io/wazuh-helm-charts/wazuh-1.1.0.tgz
+    version: 1.1.0
+generated: "2026-02-18T14:39:19.401897582Z"

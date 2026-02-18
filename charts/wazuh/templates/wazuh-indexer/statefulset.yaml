@@ -126,7 +126,7 @@ spec:
             - name: node.max_local_storage_nodes
               value: {{ .Values.wazuhIndexer.cluster.maxLocalStorageNodes | quote }}
             - name: OPENSEARCH_JAVA_OPTS
-              value: {{ .Values.wazuhIndexer.javaOpts | quote }}
+              value: "{{ .Values.wazuhIndexer.javaOpts }} -Dopensearch.path.conf=/etc/wazuh-indexer"
             - name: OPENSEARCH_PATH_CONF
               value: "/etc/wazuh-indexer"
             - name: DISCOVERY_SERVICE

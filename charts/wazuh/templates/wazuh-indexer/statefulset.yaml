@@ -100,7 +100,7 @@ spec:
                 fieldRef:
                   fieldPath: metadata.namespace
             - name: DISABLE_SECURITY_PLUGIN
-              value: "false"
+              value: "true"
             - name: DISABLE_INSTALL_DEMO_CONFIG
               value: "true"
             - name: INDEXER_USERNAME

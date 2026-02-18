@@ -50,6 +50,7 @@ spec:
             - vm.max_map_count=262144
           securityContext:
             privileged: {{ .Values.wazuhIndexer.securityContext.privileged }}
+        {{- if .Values.certificates.enabled }}
         - name: fix-cert-permissions
           image: busybox:latest
           command:
@@ -79,10 +80,12 @@ spec:
             requests:
               cpu: 50m
               memory: 128Mi
+        {{- end }}
       volumes:
         - name: indexer-config
           configMap:
             name: {{ include "wazuh.fullname" . }}-indexer-config
+        {{- if .Values.certificates.enabled }}
         - name: indexer-certs
           secret:
             secretName: {{ include "wazuh.fullname" . }}-indexer-node-certs
@@ -94,6 +97,7 @@ spec:
             secretName: {{ include "wazuh.fullname" . }}-ca-secret
         - name: certs-volume
           emptyDir: {}
+        {{- end }}
       containers:
         - name: wazuh-indexer
           image: "{{ .Values.wazuhIndexer.image.repository }}:{{ .Values.wazuhIndexer.image.tag }}"
@@ -148,9 +152,11 @@ spec:
             - name: indexer-config
               mountPath: /usr/share/wazuh-indexer/config
               readOnly: true
+            {{- if .Values.certificates.enabled }}
             - name: certs-volume
               mountPath: /usr/share/wazuh-indexer/certs
               readOnly: true
+            {{- end }}
             - name: {{ include "wazuh.fullname" . }}-indexer
               mountPath: /var/lib/wazuh-indexer
           livenessProbe:

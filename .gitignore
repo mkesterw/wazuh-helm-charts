@@ -1,5 +1,4 @@
 # Helm
-*.tgz
 Chart.lock
 charts/*/charts/
 !.helmignore

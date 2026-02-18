@@ -1,11 +1,32 @@
 apiVersion: v1
 entries:
   wazuh:
-  - apiVersion: v2
+  - annotations:
+      catalog.cattle.io/categories: |
+        - Security
+        - Monitoring
+        - Logging
+      catalog.cattle.io/certified: "false"
+      catalog.cattle.io/display-name: Wazuh Security Platform
+      catalog.cattle.io/documentation-url: https://documentation.wazuh.com
+      catalog.cattle.io/kube-version: '>=1.19.0-0'
+      catalog.cattle.io/os: linux
+      catalog.cattle.io/release-name: wazuh
+      catalog.cattle.io/support-url: https://github.com/wazuh/wazuh/issues
+      catalog.cattle.io/upstream-version: 4.9.1
+    apiVersion: v2
     appVersion: 4.9.1
-    created: "2026-02-17T20:56:47.869773034Z"
-    description: Helm chart para implantação completa do Wazuh no Kubernetes
-    digest: c227a21f231784473dfb879d9734fcf711e47e480176523b44be31d42d201aba
+    created: "2026-02-18T14:10:08.765705507Z"
+    dependencies:
+    - condition: cert-manager.enabled
+      name: cert-manager
+      repository: https://charts.jetstack.io
+      version: v1.14.4
+    description: 'Wazuh Security Platform - SIEM, XDR e Compliance open-source.  Este
+      chart instala: - Wazuh Manager (servidor de gerenciamento) - Wazuh Indexer (OpenSearch)
+      - Wazuh Dashboard (interface web) - cert-manager (geração automática de certificados
+      TLS) '
+    digest: c3f2827cf7ab70522dde444e9f5514200e6113e435cdf8aa16a06c55b93436ec
     home: https://wazuh.com
     icon: https://wazuh.com/uploads/2022/05/Logo-blogpost.png
     keywords:
@@ -14,15 +35,18 @@ entries:
     - monitoring
     - siem
     - xdr
+    - opensearch
+    - threat-detection
+    - compliance
     maintainers:
-    - email: seu-email@example.com
-      name: Seu Nome
+    - email: devops@example.com
+      name: DevOps Team
     name: wazuh
     sources:
-    - https://github.com/wazuh/wazuh-kubernetes
     - https://github.com/wazuh/wazuh
+    - https://github.com/wazuh/wazuh-kubernetes
     type: application
     urls:
-    - https://mkesterw.github.io/wazuh-helm-charts/wazuh-1.0.0.tgz
-    version: 1.0.0
-generated: "2026-02-17T20:56:47.868658308Z"
+    - https://mkesterw.github.io/wazuh-helm-charts/wazuh-1.0.5.tgz
+    version: 1.0.5
+generated: "2026-02-18T14:10:08.761330225Z"

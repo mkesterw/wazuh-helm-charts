@@ -50,6 +50,35 @@ spec:
             - vm.max_map_count=262144
           securityContext:
             privileged: {{ .Values.wazuhIndexer.securityContext.privileged }}
+        - name: fix-cert-permissions
+          image: busybox:latest
+          command:
+            - sh
+            - -c
+            - |
+              cp /tmp-certs-node/tls.crt /certs/node.pem
+              cp /tmp-certs-node/tls.key /certs/node-key.pem
+              cp /tmp-certs-ca/ca.crt /certs/root-ca.pem
+              cp /tmp-certs-admin/tls.crt /certs/admin.pem
+              cp /tmp-certs-admin/tls.key /certs/admin-key.pem
+              chmod 644 /certs/*.pem
+              chown -R 1000:1000 /certs
+          volumeMounts:
+            - name: indexer-certs
+              mountPath: /tmp-certs-node
+            - name: admin-certs
+              mountPath: /tmp-certs-admin
+            - name: ca-cert
+              mountPath: /tmp-certs-ca
+            - name: certs-volume
+              mountPath: /certs
+          resources:
+            limits:
+              cpu: 100m
+              memory: 256Mi
+            requests:
+              cpu: 50m
+              memory: 128Mi
       volumes:
         - name: indexer-config
           configMap:
@@ -63,6 +92,8 @@ spec:
         - name: ca-cert
           secret:
             secretName: {{ include "wazuh.fullname" . }}-ca-secret
+        - name: certs-volume
+          emptyDir: {}
       containers:
         - name: wazuh-indexer
           image: "{{ .Values.wazuhIndexer.image.repository }}:{{ .Values.wazuhIndexer.image.tag }}"
@@ -100,7 +131,7 @@ spec:
                 fieldRef:
                   fieldPath: metadata.namespace
             - name: DISABLE_SECURITY_PLUGIN
-              value: "true"
+              value: "false"
             - name: DISABLE_INSTALL_DEMO_CONFIG
               value: "true"
             - name: INDEXER_USERNAME
@@ -117,25 +148,8 @@ spec:
             - name: indexer-config
               mountPath: /usr/share/wazuh-indexer/config
               readOnly: true
-            - name: indexer-certs
-              mountPath: /usr/share/wazuh-indexer/certs/node.pem
-              subPath: tls.crt
-              readOnly: true
-            - name: indexer-certs
-              mountPath: /usr/share/wazuh-indexer/certs/node-key.pem
-              subPath: tls.key
-              readOnly: true
-            - name: admin-certs
-              mountPath: /usr/share/wazuh-indexer/certs/admin.pem
-              subPath: tls.crt
-              readOnly: true
-            - name: admin-certs
-              mountPath: /usr/share/wazuh-indexer/certs/admin-key.pem
-              subPath: tls.key
-              readOnly: true
-            - name: ca-cert
-              mountPath: /usr/share/wazuh-indexer/certs/root-ca.pem
-              subPath: ca.crt
+            - name: certs-volume
+              mountPath: /usr/share/wazuh-indexer/certs
               readOnly: true
             - name: {{ include "wazuh.fullname" . }}-indexer
               mountPath: /var/lib/wazuh-indexer

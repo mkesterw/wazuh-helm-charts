@@ -12,8 +12,8 @@ global:
 ## IMPORTANTE: Se o cert-manager já está instalado no cluster (comum no Rancher),
 ## deixe enabled: false. Caso contrário, você pode habilitar para instalação automática.
 cert-manager:
-  enabled: false  # ← FALSE se já estiver instalado no cluster
-  installCRDs: true  # Instalar CRDs do cert-manager (apenas se enabled: true)
+  enabled: true  # ← TRUE para instalar automaticamente
+  installCRDs: true  # Instalar CRDs do cert-manager
   
   # Configurações do cert-manager (opcional)
   resources:

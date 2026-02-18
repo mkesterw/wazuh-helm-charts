@@ -57,13 +57,14 @@ spec:
             - sh
             - -c
             - |
-              cp /tmp-certs-node/tls.crt /certs/node.pem
-              cp /tmp-certs-node/tls.key /certs/node-key.pem
-              cp /tmp-certs-ca/ca.crt /certs/root-ca.pem
-              cp /tmp-certs-admin/tls.crt /certs/admin.pem
-              cp /tmp-certs-admin/tls.key /certs/admin-key.pem
-              chmod 644 /certs/*.pem
-              chown -R 1000:1000 /certs
+              mkdir -p /etc/wazuh-indexer/certs
+              cp /tmp-certs-node/tls.crt /etc/wazuh-indexer/certs/node.pem
+              cp /tmp-certs-node/tls.key /etc/wazuh-indexer/certs/node-key.pem
+              cp /tmp-certs-ca/ca.crt /etc/wazuh-indexer/certs/root-ca.pem
+              cp /tmp-certs-admin/tls.crt /etc/wazuh-indexer/certs/admin.pem
+              cp /tmp-certs-admin/tls.key /etc/wazuh-indexer/certs/admin-key.pem
+              chmod 644 /etc/wazuh-indexer/certs/*.pem
+              chown -R 1000:1000 /etc/wazuh-indexer/certs
           volumeMounts:
             - name: indexer-certs
               mountPath: /tmp-certs-node
@@ -72,7 +73,7 @@ spec:
             - name: ca-cert
               mountPath: /tmp-certs-ca
             - name: certs-volume
-              mountPath: /certs
+              mountPath: /etc/wazuh-indexer/certs
           resources:
             limits:
               cpu: 100m
@@ -127,7 +128,7 @@ spec:
             - name: OPENSEARCH_JAVA_OPTS
               value: {{ .Values.wazuhIndexer.javaOpts | quote }}
             - name: OPENSEARCH_PATH_CONF
-              value: "/usr/share/wazuh-indexer/config"
+              value: "/etc/wazuh-indexer"
             - name: DISCOVERY_SERVICE
               value: {{ include "wazuh.fullname" . }}-indexer
             - name: KUBERNETES_NAMESPACE
@@ -150,11 +151,11 @@ spec:
                   key: password
           volumeMounts:
             - name: indexer-config
-              mountPath: /usr/share/wazuh-indexer/config
+              mountPath: /etc/wazuh-indexer
               readOnly: true
             {{- if .Values.certificates.enabled }}
             - name: certs-volume
-              mountPath: /usr/share/wazuh-indexer/certs
+              mountPath: /etc/wazuh-indexer/certs
               readOnly: true
             {{- end }}
             - name: {{ include "wazuh.fullname" . }}-indexer

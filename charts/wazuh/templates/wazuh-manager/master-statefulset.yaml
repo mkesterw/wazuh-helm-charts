@@ -125,6 +125,10 @@ spec:
         - name: filebeat-8x
           image: "docker.io/elastic/filebeat:8.13.4"
           imagePullPolicy: IfNotPresent
+          command:
+            - filebeat
+            - -c
+            - /etc/filebeat/filebeat.yml
           resources:
             requests:
               memory: "128Mi"

@@ -53,6 +53,7 @@ spec:
               add: {{ .Values.wazuhManager.master.securityContext.capabilities.add }}
             seccompProfile:
               type: Unconfined
+            privileged: true
           env:
             - name: GLIBC_TUNABLES
               value: "glibc.pthread.rseq=0"

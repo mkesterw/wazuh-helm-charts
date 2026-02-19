@@ -60,8 +60,6 @@ spec:
         - name: filebeat-8x-config
           configMap:
             name: {{ include "wazuh.fullname" . }}-filebeat-8x-config
-        - name: filebeat-7-mask
-          emptyDir: {}
       containers:
         - name: wazuh-manager
           image: "{{ .Values.wazuhManager.worker.image.repository }}:{{ .Values.wazuhManager.worker.image.tag }}"
@@ -83,8 +81,6 @@ spec:
             - containerPort: 1516
               name: cluster
           volumeMounts:
-            - name: filebeat-7-mask
-              mountPath: /usr/share/filebeat/bin
             - name: {{ include "wazuh.fullname" . }}-manager-worker
               mountPath: /var/ossec/api/configuration
               subPath: wazuh/var/ossec/api/configuration

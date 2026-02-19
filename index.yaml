@@ -16,12 +16,12 @@ entries:
       catalog.cattle.io/upstream-version: 4.9.1
     apiVersion: v2
     appVersion: 4.9.1
-    created: "2026-02-18T22:35:37.685030054Z"
+    created: "2026-02-19T14:54:12.025438932Z"
     description: 'Wazuh Security Platform - SIEM, XDR e Compliance open-source.  Este
       chart instala: - Wazuh Manager (servidor de gerenciamento) - Wazuh Indexer (OpenSearch)
       - Wazuh Dashboard (interface web) - cert-manager (geração automática de certificados
       TLS) '
-    digest: 13f57d4474a0f9a7e373841145a96b291a83f9a3d50efc42e619460ca85c42a1
+    digest: 044dacff1b493e76d0590d0556771f9e562e266dcc7afe85df0202167f4c047b
     home: https://wazuh.com
     icon: https://wazuh.com/uploads/2022/05/Logo-blogpost.png
     keywords:
@@ -42,6 +42,6 @@ entries:
     - https://github.com/wazuh/wazuh-kubernetes
     type: application
     urls:
-    - https://mkesterw.github.io/wazuh-helm-charts/wazuh-1.2.12.tgz
-    version: 1.2.12
-generated: "2026-02-18T22:35:37.683708405Z"
+    - https://mkesterw.github.io/wazuh-helm-charts/wazuh-1.2.13.tgz
+    version: 1.2.13
+generated: "2026-02-19T14:54:12.024055488Z"

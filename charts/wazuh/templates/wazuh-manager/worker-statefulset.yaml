@@ -18,6 +18,8 @@ spec:
   podManagementPolicy: Parallel
   template:
     metadata:
+      annotations:
+        container.apparmor.security.beta.kubernetes.io/wazuh-manager: unconfined
       labels:
         app: wazuh-manager
         node-type: worker

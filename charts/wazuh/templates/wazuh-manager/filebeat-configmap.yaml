@@ -23,7 +23,7 @@ data:
     setup.ilm.enabled: false
 
     output.elasticsearch:
-      hosts: ["{{ if .Values.certificates.enabled }}https{{ else }}http{{ end }}://{{ include "wazuh.fullname" . }}-indexer:9200"]
+      hosts: ["{{ if .Values.certificates.enabled }}https{{ else }}http{{ end }}://wazuh-indexer:9200"]
       username: "{{ .Values.secrets.indexer.username }}"
       password: "{{ .Values.secrets.indexer.password }}"
       index: "wazuh-alerts-4.x-%{+yyyy.MM.dd}"

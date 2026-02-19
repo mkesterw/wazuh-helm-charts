@@ -10,7 +10,7 @@ description: |
   - cert-manager (geração automática de certificados TLS)
 
 type: application
-version: 1.2.12
+version: 1.2.13
 appVersion: "4.9.1"
 
 keywords:

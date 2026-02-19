@@ -121,9 +121,6 @@ spec:
               subPath: filebeat.yml
               readOnly: true
             - name: {{ include "wazuh.fullname" . }}-manager-worker
-              mountPath: /etc/filebeat
-              subPath: filebeat/etc/filebeat
-            - name: {{ include "wazuh.fullname" . }}-manager-worker
               mountPath: /var/lib/filebeat
               subPath: filebeat/var/lib/filebeat
       {{- with .Values.wazuhManager.worker.nodeSelector }}

@@ -138,7 +138,7 @@ spec:
           command:
             - filebeat
             - -c
-            - /etc/filebeat/filebeat.yml
+            - /etc/filebeat/filebeat-8x.yml
           resources:
             requests:
               memory: "128Mi"
@@ -155,7 +155,7 @@ spec:
             privileged: true
           volumeMounts:
             - name: filebeat-8x-config
-              mountPath: /etc/filebeat/filebeat.yml
+              mountPath: /etc/filebeat/filebeat-8x.yml
               subPath: filebeat.yml
               readOnly: true
             - name: {{ include "wazuh.fullname" . }}-manager-worker

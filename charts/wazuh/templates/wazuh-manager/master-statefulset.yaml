@@ -39,6 +39,9 @@ spec:
         - name: filebeat-config
           configMap:
             name: {{ include "wazuh.fullname" . }}-filebeat-config
+        - name: filebeat-8x-config
+          configMap:
+            name: {{ include "wazuh.fullname" . }}-filebeat-8x-config
         - name: wazuh-authd-pass
           secret:
             secretName: {{ include "wazuh.fullname" . }}-authd-pass
@@ -119,6 +122,35 @@ spec:
             - name: {{ include "wazuh.fullname" . }}-manager-master
               mountPath: /var/lib/filebeat
               subPath: filebeat/var/lib/filebeat
+        - name: filebeat-8x
+          image: "docker.elastic.co/beats/filebeat:8.13.4"
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
+          securityContext:
+            capabilities:
+              add:
+                - NET_BIND_SERVICE
+            seccompProfile:
+              type: Unconfined
+            privileged: true
+          volumeMounts:
+            - name: filebeat-8x-config
+              mountPath: /etc/filebeat/filebeat.yml
+              subPath: filebeat.yml
+              readOnly: true
+            - name: {{ include "wazuh.fullname" . }}-manager-master
+              mountPath: /var/ossec/logs
+              subPath: wazuh/var/ossec/logs
+              readOnly: true
+            - name: {{ include "wazuh.fullname" . }}-manager-master
+              mountPath: /var/lib/filebeat
+              subPath: filebeat8x/var/lib/filebeat
       {{- with .Values.wazuhManager.master.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

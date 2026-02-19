@@ -1,0 +1,36 @@
+{{- if or .Values.wazuhManager.master.enabled .Values.wazuhManager.worker.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "wazuh.fullname" . }}-filebeat-8x-config
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "wazuh.labels" . | nindent 4 }}
+    app: wazuh-manager
+data:
+  filebeat.yml: |
+    filebeat.inputs:
+      - type: log
+        enabled: true
+        paths:
+          - /var/ossec/logs/alerts/alerts.json
+          - /var/ossec/logs/archives/*
+        fields:
+          event.module: wazuh
+          event.dataset: wazuh.alerts
+
+    setup.template.enabled: false
+    setup.ilm.enabled: false
+    logging.level: info
+
+    output.elasticsearch:
+      hosts: ["{{ if .Values.certificates.enabled }}https{{ else }}http{{ end }}://{{ include "wazuh.fullname" . }}-indexer:9200"]
+      username: "{{ .Values.secrets.indexer.username }}"
+      password: "{{ .Values.secrets.indexer.password }}"
+      index: "wazuh-alerts-4.x-%{+yyyy.MM.dd}"
+      {{- if .Values.certificates.enabled }}
+      ssl.certificate_authorities: ["/etc/filebeat/certs/root-ca.pem"]
+      ssl.certificate: "/etc/filebeat/certs/filebeat.pem"
+      ssl.key: "/etc/filebeat/certs/filebeat-key.pem"
+      {{- end }}
+{{- end }}

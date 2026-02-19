@@ -57,9 +57,6 @@ spec:
           secret:
             secretName: {{ include "wazuh.fullname" . }}-indexer-admin-certs
         {{- end }}
-        - name: filebeat-config
-          configMap:
-            name: {{ include "wazuh.fullname" . }}-filebeat-config
         - name: filebeat-8x-config
           configMap:
             name: {{ include "wazuh.fullname" . }}-filebeat-8x-config
@@ -125,10 +122,6 @@ spec:
             - name: {{ include "wazuh.fullname" . }}-manager-worker
               mountPath: /var/ossec/wodles
               subPath: wazuh/var/ossec/wodles
-            - name: filebeat-config
-              mountPath: /etc/filebeat/filebeat.yml
-              subPath: filebeat.yml
-              readOnly: true
             - name: {{ include "wazuh.fullname" . }}-manager-worker
               mountPath: /var/lib/filebeat
               subPath: filebeat8x/var/lib/filebeat

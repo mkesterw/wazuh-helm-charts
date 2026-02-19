@@ -56,6 +56,8 @@ spec:
           env:
             - name: INDEXER_URL
               value: {{ .Values.wazuhDashboard.env.opensearchHosts | quote }}
+            - name: WAZUH_API_URL
+              value: {{ .Values.wazuhDashboard.env.wazuhApiUrl | quote }}
             - name: DASHBOARD_USERNAME
               valueFrom:
                 secretKeyRef:

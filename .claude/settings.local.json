@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(ls:*)",
+      "Bash(cmd /c \"dir \"\"c:\\\\Users\\\\MAYCON\\\\Downloads\\\\files\\(2\\)\\\\charts\\\\wazuh\\\\templates\\\\secrets\"\"\")"
     ]
   }
 }

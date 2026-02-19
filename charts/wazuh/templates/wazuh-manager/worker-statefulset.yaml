@@ -51,6 +51,33 @@ spec:
                     app: wazuh-manager
                     node-type: worker
       {{- end }}
+      initContainers:
+        - name: keystore-setup
+          image: "{{ .Values.wazuhManager.worker.image.repository }}:{{ .Values.wazuhManager.worker.image.tag }}"
+          imagePullPolicy: {{ .Values.wazuhManager.worker.image.pullPolicy }}
+          command:
+            - /bin/bash
+            - -c
+            - |
+              echo "Configurando keystore do Wazuh Manager..."
+              /var/ossec/bin/wazuh-keystore -f indexer -k username -v "${INDEXER_USERNAME}"
+              /var/ossec/bin/wazuh-keystore -f indexer -k password -v "${INDEXER_PASSWORD}"
+              echo "Keystore configurado."
+          env:
+            - name: INDEXER_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "wazuh.fullname" . }}-indexer-cred
+                  key: username
+            - name: INDEXER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "wazuh.fullname" . }}-indexer-cred
+                  key: password
+          volumeMounts:
+            - name: {{ include "wazuh.fullname" . }}-manager-worker
+              mountPath: /var/ossec/etc
+              subPath: wazuh/var/ossec/etc
       volumes:
         {{- if .Values.certificates.enabled }}
         - name: wazuh-server-certs

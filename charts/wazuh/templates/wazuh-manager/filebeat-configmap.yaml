@@ -29,9 +29,9 @@ data:
     
     logging.level: error
 
-    # Output necessário para Filebeat iniciar
+    # Output necessário para Filebeat iniciar (mesmo desabilitado)
     output.elasticsearch:
-      hosts: ["https://localhost:9200"]
+      hosts: ["http://wazuh-indexer:9200"]
       username: "admin"
       password: "admin"
 {{- end }}

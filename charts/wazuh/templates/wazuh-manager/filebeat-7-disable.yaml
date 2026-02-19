@@ -1,0 +1,16 @@
+{{- if or .Values.wazuhManager.master.enabled .Values.wazuhManager.worker.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "wazuh.fullname" . }}-filebeat-7-disable
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "wazuh.labels" . | nindent 4 }}
+    app: wazuh-manager
+data:
+  filebeat: |
+    #!/bin/bash
+    # Filebeat 7.10.2 desabilitado - usando Filebeat 8.x sidecar
+    echo "Filebeat 7.10.2 bundled foi desabilitado. Use o container filebeat-8x."
+    exit 0
+{{- end }}

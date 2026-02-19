@@ -11,6 +11,8 @@ data:
   filebeat: |
     #!/bin/bash
     # Filebeat 7.10.2 desabilitado - usando Filebeat 8.x sidecar
+    # IMPORTANTE: nao usar exit aqui - o s6-overlay mata o container inteiro
+    # quando qualquer servico supervisionado sai, mesmo com codigo 0.
     echo "Filebeat 7.10.2 bundled foi desabilitado. Use o container filebeat-8x."
-    exit 0
+    exec tail -f /dev/null
 {{- end }}

@@ -18,9 +18,6 @@ spec:
   podManagementPolicy: Parallel
   template:
     metadata:
-      annotations:
-        container.apparmor.security.beta.kubernetes.io/wazuh-manager: unconfined
-        seccomp.security.alpha.kubernetes.io/pod: unconfined
       labels:
         app: wazuh-manager
         node-type: master
@@ -54,6 +51,8 @@ spec:
           securityContext:
             capabilities:
               add: {{ .Values.wazuhManager.master.securityContext.capabilities.add }}
+            seccompProfile:
+              type: Unconfined
           env:
             - name: GLIBC_TUNABLES
               value: "glibc.pthread.rseq=0"

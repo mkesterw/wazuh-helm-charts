@@ -69,6 +69,9 @@ spec:
           securityContext:
             capabilities:
               add: {{ .Values.wazuhManager.worker.securityContext.capabilities.add }}
+          env:
+            - name: GLIBC_TUNABLES
+              value: "glibc.pthread.rseq=0"
           ports:
             - containerPort: 1514
               name: agents-events

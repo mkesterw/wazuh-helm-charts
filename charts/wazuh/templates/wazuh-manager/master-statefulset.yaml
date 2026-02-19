@@ -42,6 +42,21 @@ spec:
         - name: wazuh-authd-pass
           secret:
             secretName: {{ include "wazuh.fullname" . }}-authd-pass
+      initContainers:
+        - name: disable-filebeat-7
+          image: "{{ .Values.wazuhManager.master.image.repository }}:{{ .Values.wazuhManager.master.image.tag }}"
+          command:
+            - /bin/bash
+            - -c
+            - |
+              if [ -f /usr/share/filebeat/bin/filebeat ]; then
+                mv /usr/share/filebeat/bin/filebeat /usr/share/filebeat/bin/filebeat.disabled
+                echo "Filebeat 7.10.2 bundled desabilitado"
+              fi
+          volumeMounts:
+            - name: {{ include "wazuh.fullname" . }}-manager-master
+              mountPath: /usr/share/filebeat
+              subPath: filebeat-bundled
       containers:
         - name: wazuh-manager
           image: "{{ .Values.wazuhManager.master.image.repository }}:{{ .Values.wazuhManager.master.image.tag }}"

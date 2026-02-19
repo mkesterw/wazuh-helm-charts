@@ -60,6 +60,21 @@ spec:
         - name: filebeat-8x-config
           configMap:
             name: {{ include "wazuh.fullname" . }}-filebeat-8x-config
+      initContainers:
+        - name: disable-filebeat-7
+          image: "{{ .Values.wazuhManager.worker.image.repository }}:{{ .Values.wazuhManager.worker.image.tag }}"
+          command:
+            - /bin/bash
+            - -c
+            - |
+              if [ -f /usr/share/filebeat/bin/filebeat ]; then
+                mv /usr/share/filebeat/bin/filebeat /usr/share/filebeat/bin/filebeat.disabled
+                echo "Filebeat 7.10.2 bundled desabilitado"
+              fi
+          volumeMounts:
+            - name: {{ include "wazuh.fullname" . }}-manager-worker
+              mountPath: /usr/share/filebeat
+              subPath: filebeat-bundled
       containers:
         - name: wazuh-manager
           image: "{{ .Values.wazuhManager.worker.image.repository }}:{{ .Values.wazuhManager.worker.image.tag }}"

@@ -133,7 +133,7 @@ spec:
               mountPath: /var/lib/filebeat
               subPath: filebeat/var/lib/filebeat
         - name: filebeat-8x
-          image: "docker.elastic.co/beats/filebeat:8.13.4"
+          image: "docker.io/elastic/filebeat:8.13.4"
           imagePullPolicy: IfNotPresent
           resources:
             requests:

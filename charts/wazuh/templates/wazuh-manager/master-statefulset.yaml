@@ -88,6 +88,28 @@ spec:
           env:
             - name: GLIBC_TUNABLES
               value: "glibc.pthread.rseq=0"
+            - name: INDEXER_URL
+              value: "http://{{ include "wazuh.fullname" . }}-indexer:9200"
+            - name: INDEXER_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "wazuh.fullname" . }}-indexer-cred
+                  key: username
+            - name: INDEXER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "wazuh.fullname" . }}-indexer-cred
+                  key: password
+            - name: API_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "wazuh.fullname" . }}-wazuh-api-cred
+                  key: username
+            - name: API_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "wazuh.fullname" . }}-wazuh-api-cred
+                  key: password
           ports:
             - containerPort: 1514
               name: agents-events

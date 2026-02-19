@@ -9,18 +9,17 @@ metadata:
     app: wazuh-manager
 data:
   filebeat.yml: |
-    # Desabilitar Filebeat 7.10.2 bundled - usar apenas filebeat-8x sidecar
-    filebeat.inputs:
-      - type: log
-        enabled: false
-        paths:
-          - /var/ossec/logs/alerts/alerts.json
+    # Desabilitar Filebeat 7.10.2 bundled - manter inputs vazios
+    # O Filebeat 8.x sidecar fará todo o trabalho de coleta e envio
+    filebeat.inputs: []
 
     setup.template.enabled: false
     setup.ilm.enabled: false
     logging.level: error
 
+    # Output necessário para Filebeat iniciar, mesmo que desabilitado
     output.elasticsearch:
-      hosts: ["https://wazuh-indexer:9200"]
-      enabled: false
+      hosts: ["https://localhost:9200"]
+      username: "admin"
+      password: "admin"
 {{- end }}
